@@ -915,372 +915,102 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') { $auto_bilty_no = get_next_bilty_no(
       </div>
     </form>
   </div>
-            <input id="driver_name" name="driver_name" type="text" value="<?php echo htmlspecialchars($_POST['driver_name'] ?? ''); ?>" class="mt-1 block w-full rounded-md border px-3 py-2">
-          </div>
-
-          <div>
-            <label for="driver_number" class="block text-sm font-medium text-gray-700">Driver number</label>
-            <input id="driver_number" name="driver_number" type="text" value="<?php echo htmlspecialchars($_POST['driver_number'] ?? ''); ?>" class="mt-1 block w-full rounded-md border px-3 py-2">
-          </div>
-
-          <div>
-            <label for="vehicle_type" class="block text-sm font-medium text-gray-700">Vehicle type</label>
-            <input id="vehicle_type" name="vehicle_type" type="text" value="<?php echo htmlspecialchars($_POST['vehicle_type'] ?? ''); ?>" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Truck, Trailer, Van...">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-          <div>
-            <label for="sender_name" class="block text-sm font-medium text-gray-700">Sender</label>
-            <input id="sender_name" name="sender_name" type="text" value="<?php echo htmlspecialchars($_POST['sender_name'] ?? ''); ?>" class="mt-1 block w-full rounded-md border px-3 py-2" placeholder="Sender or company">
-          </div>
-
-          <div>
-            <label for="from_city" class="block text-sm font-medium text-gray-700">Origin</label>
-            <input id="from_city" name="from_city" type="text" value="<?php echo htmlspecialchars($_POST['from_city'] ?? ''); ?>" class="mt-1 block w-full rounded-md border px-3 py-2">
-          </div>
-
-          <div>
-            <label for="to_city" class="block text-sm font-medium text-gray-700">Destination</label>
-            <input id="to_city" name="to_city" type="text" value="<?php echo htmlspecialchars($_POST['to_city'] ?? ''); ?>" class="mt-1 block w-full rounded-md border px-3 py-2">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-          <div>
-            <label for="qty" class="block text-sm font-medium text-gray-700">Quantity</label>
-            <input id="qty" name="qty" type="number" min="0" step="1" value="<?php echo htmlspecialchars($_POST['qty'] ?? '0'); ?>" class="mt-1 block w-full rounded-md border px-3 py-2">
-          </div>
-
-          <div>
-            <label for="km" class="block text-sm font-medium text-gray-700">Distance (KM)</label>
-            <input id="km" name="km" type="number" min="0" step="1" value="<?php echo htmlspecialchars($_POST['km'] ?? '0'); ?>" class="mt-1 block w-full rounded-md border px-3 py-2">
-          </div>
-
-          <div id="rateBlock">
-            <label for="rate" class="block text-sm font-medium text-gray-700">Rate (per KM)</label>
-            <input id="rate" name="rate" type="number" min="0" step="0.01" value="<?php echo htmlspecialchars($_POST['rate'] ?? '0.00'); ?>" class="mt-1 block w-full rounded-md border px-3 py-2">
-            <div class="toggle-container">
-              <label>
-                <input type="checkbox" id="fixedChk" name="fixed" value="1" <?php if (isset($_POST['fixed']) && $_POST['fixed']=='1') echo 'checked'; ?>>
-                <span>Fixed Rate</span>
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <label for="amount" class="block text-sm font-medium text-gray-700">Amount <span id="rateBadge" class="rate-badge hidden">Fixed rate</span></label>
-            <input id="amount" name="amount" type="text" readonly value="<?php echo htmlspecialchars($_POST['amount'] ?? '0.00'); ?>" class="mt-1 block w-full rounded-md border bg-gray-50 px-3 py-2">
-            <p class="text-xs text-gray-400 mt-1">Amount = Distance (KM) × Rate</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <div>
-            <label for="advance" class="block text-sm font-medium text-gray-700">Advance paid</label>
-            <input id="advance" name="advance" type="number" min="0" step="0.01" value="<?php echo htmlspecialchars($_POST['advance'] ?? '0.00'); ?>" class="mt-1 block w-full rounded-md border px-3 py-2">
-          </div>
-
-          <div>
-            <label for="balance" class="block text-sm font-medium text-gray-700">Balance</label>
-            <input id="balance" name="balance" type="text" readonly value="<?php echo htmlspecialchars($_POST['balance'] ?? '0.00'); ?>" class="mt-1 block w-full rounded-md border bg-gray-50 px-3 py-2">
-            <p class="text-xs text-gray-400 mt-1">Amount remaining after advance</p>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <label for="details" class="block text-sm font-medium text-gray-700">Notes</label>
-          <textarea id="details" name="details" rows="4" class="mt-1 block w-full rounded-md border px-3 py-2"><?php echo htmlspecialchars($_POST['details'] ?? ''); ?></textarea>
-        </div>
-
-        <div class="flex items-center justify-between gap-4 mt-4">
-          <div class="text-sm text-gray-600"></div>
-          <div class="flex items-center gap-3">
-            <button type="submit" class="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-md">Save Bilty</button>
-            <button type="button" id="resetBtn" class="inline-flex items-center gap-2 px-4 py-2 rounded-md border bg-white">
-              Reset
-            </button>
-          </div>
-        </div>
-      </form>
-    </section>
-  </main>
 
   <!-- Add Company Modal -->
-  <div id="companyModal" class="modal-backdrop">
+  <div class="modal-backdrop" id="companyModal">
     <div class="modal-panel">
-      <button type="button" class="modal-close" id="companyModalClose">✕</button>
-      <h3>Add Company</h3>
-      <p class="text-sm text-gray-600 mb-4">Create a new company and it will be auto-selected.</p>
-      <form id="companyForm" autocomplete="off">
-        <div class="field">
-          <label>Company Name *</label>
-          <input type="text" name="name" id="new_company_name" required maxlength="150" placeholder="Company name">
+      <div class="modal-header">
+        <h3 class="modal-title">Add New Company</h3>
+        <button type="button" class="modal-close" id="closeModal">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+      <form id="companyForm" method="post" action="company_save.php">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="filter-label">Company Name</label>
+          <input type="text" name="company_name" class="form-input" required />
         </div>
-        <div class="field">
-          <label>Address</label>
-          <textarea name="address" id="new_company_address" rows="3" maxlength="255" placeholder="Street / City / Optional details"></textarea>
-          <p class="hint">Max 255 characters.</p>
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="filter-label">Address</label>
+          <textarea name="company_address" class="form-textarea" rows="3"></textarea>
         </div>
-        <div class="modal-actions">
-          <button type="button" class="btn-small secondary" id="cancelCompanyBtn">Cancel</button>
-          <button type="submit" class="btn-small">Save Company</button>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeCompanyModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Company</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Confirm modal -->
-  <div id="confirmModal" class="modal-backdrop" aria-hidden="true">
-    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
-      <button type="button" class="modal-close" id="confirmModalClose">✕</button>
-      <h3 id="confirmTitle" style="margin-top:0">Confirm Save Bilty</h3>
-      <p class="text-sm text-gray-600 mb-4">Check details below and confirm to save the bilty.</p>
-
-      <div class="space-y-2 mt-3">
-        <div class="flex justify-between py-1 border-b"><strong class="text-sm">Bilty No</strong><span id="c_bilty_no" class="text-sm"></span></div>
-        <div class="flex justify-between py-1 border-b"><strong class="text-sm">Company</strong><span id="c_company" class="text-sm"></span></div>
-        <div class="flex justify-between py-1 border-b"><strong class="text-sm">Date</strong><span id="c_date" class="text-sm"></span></div>
-        <div class="flex justify-between py-1 border-b"><strong class="text-sm">Amount</strong><span id="c_amount" class="text-sm"></span></div>
-        <div class="flex justify-between py-1 border-b"><strong class="text-sm">Advance</strong><span id="c_advance" class="text-sm"></span></div>
-        <div class="flex justify-between py-1 border-b"><strong class="text-sm">Balance</strong><span id="c_balance" class="text-sm"></span></div>
-        <div class="flex justify-between py-1"><strong class="text-sm">Rate Type</strong><span id="c_rate_type" class="text-sm"></span></div>
-      </div>
-
-      <div class="modal-actions mt-4">
-        <button type="button" class="btn-small secondary" id="cancelConfirmBtn">Cancel</button>
-        <button type="button" class="btn-small" id="confirmSaveBtn">Confirm & Save</button>
-      </div>
     </div>
   </div>
 
   <script>
-    function toFixedSafe(n, dec = 2) { return Number.isFinite(n) ? n.toFixed(dec) : (0).toFixed(dec); }
-
-    // calc and UI helpers
-    function calc() {
-      const fixed = document.getElementById('fixedChk')?.checked || false;
-      const km = parseFloat(document.getElementById('km').value) || 0;
-      const rateEl = document.getElementById('rate');
-      const rate = rateEl ? (parseFloat(rateEl.value) || 0) : 0;
-      const advance = parseFloat(document.getElementById('advance').value) || 0;
-      const amountEl = document.getElementById('amount');
-
-      let amount;
-      if (fixed) {
-        amount = parseFloat((amountEl.value || '0').toString().replace(/,/g, '')) || 0;
-      } else {
-        amount = +(km * rate);
-        amountEl.value = toFixedSafe(amount);
-      }
-
-      const balance = +(amount - advance);
-      document.getElementById('balance').value = toFixedSafe(balance);
-
-      toggleRateBadge();
+    // Modal functions
+    function openCompanyModal() {
+      document.getElementById('companyModal').classList.add('show');
+      document.getElementById('companyModal').style.display = 'flex';
     }
-
-    function toggleRateBadge() {
-      const fixed = document.getElementById('fixedChk')?.checked || false;
-      const badge = document.getElementById('rateBadge');
-      if (badge) {
-        if (fixed) {
-          badge.classList.remove('hidden');
-        } else {
-          badge.classList.add('hidden');
-        }
-      }
+    
+    function closeCompanyModal() {
+      document.getElementById('companyModal').classList.remove('show');
+      document.getElementById('companyModal').style.display = 'none';
     }
-
-    function toggleFixedFields(setFixed) {
-      const fixed = (typeof setFixed === 'boolean') ? setFixed : (document.getElementById('fixedChk')?.checked || false);
-      const rateEl = document.getElementById('rate');
-      const badge = document.getElementById('rateBadge');
-      const amountEl = document.getElementById('amount');
-
-      if (fixed) {
-        // Store current rate value before setting to zero
-        if (rateEl && rateEl.value !== undefined) { rateEl.dataset.prev = rateEl.value; }
-        if (rateEl) rateEl.value = toFixedSafe(0);
-        if (badge) badge.classList.remove('hidden');
-
-        // make amount editable
-        if (amountEl) {
-          amountEl.readOnly = false;
-          amountEl.classList.add('editable-amount');
-          amountEl.classList.remove('bg-gray-50');
-          amountEl.focus();
-          const val = amountEl.value || '';
-          if (amountEl.setSelectionRange) amountEl.setSelectionRange(val.length, val.length);
-        }
-      } else {
-        // Restore previous rate value if exists
-        if (rateEl && rateEl.dataset && rateEl.dataset.prev !== undefined) {
-          rateEl.value = rateEl.dataset.prev;
-          delete rateEl.dataset.prev;
-        }
-        if (badge) badge.classList.add('hidden');
-
-        // Make amount read-only again and recalculate
-        if (amountEl) {
-          amountEl.readOnly = true;
-          amountEl.classList.remove('editable-amount');
-          amountEl.classList.add('bg-gray-50');
-          const km = parseFloat(document.getElementById('km').value) || 0;
-          const rate = parseFloat(rateEl.value) || 0;
-          amountEl.value = toFixedSafe(km * rate);
-        }
-      }
-      calc();
-    }
-
-    function updateCompanyAddressPreview() {
-      const sel = document.getElementById('company');
+    
+    document.getElementById('btnAddCompany')?.addEventListener('click', openCompanyModal);
+    document.getElementById('closeModal')?.addEventListener('click', closeCompanyModal);
+    
+    // Company address preview
+    document.getElementById('company')?.addEventListener('change', function() {
+      const selected = this.options[this.selectedIndex];
+      const address = selected?.getAttribute('data-address');
       const preview = document.getElementById('companyAddressPreview');
-      if (!sel || !preview) return;
-      const opt = sel.options[sel.selectedIndex];
-      const addr = opt ? opt.getAttribute('data-address') : '';
-      preview.textContent = addr ? ('Address: ' + addr) : '';
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      // attach basic listeners
-      ['km','rate','advance'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('input', calc);
-      });
-      
-      // Company address preview
-      document.getElementById('company')?.addEventListener('change', updateCompanyAddressPreview);
-      updateCompanyAddressPreview();
-
-      // Fixed checkbox
-      const fixedChk = document.getElementById('fixedChk');
-      if (fixedChk) {
-        fixedChk.addEventListener('change', () => toggleFixedFields());
+      if (address && address.trim()) {
+        preview.textContent = 'Address: ' + address;
+        preview.classList.add('show');
+      } else {
+        preview.textContent = '';
+        preview.classList.remove('show');
       }
-      toggleFixedFields(fixedChk ? fixedChk.checked : false);
-      
-      // Amount field special handling when fixed
-      const amountEl = document.getElementById('amount');
-      if (amountEl) {
-        amountEl.addEventListener('input', function() {
-          if (this.readOnly === false) {
-            calc(); // Recalculate balance when editing amount directly
-          }
-        });
-      }
-
-      // company modal
-      const companyModal = document.getElementById('companyModal');
-      const openCompanyBtn = document.getElementById('btnAddCompany');
-      const closeCompanyBtn = document.getElementById('companyModalClose');
-      const cancelCompanyBtn = document.getElementById('cancelCompanyBtn');
-      const companyForm = document.getElementById('companyForm');
-
-      function openCompanyModal(){ companyModal.style.display = 'flex'; document.getElementById('new_company_name').focus(); }
-      function closeCompanyModal(){ companyModal.style.display = 'none'; companyForm.reset(); }
-      openCompanyBtn?.addEventListener('click', openCompanyModal);
-      closeCompanyBtn?.addEventListener('click', closeCompanyModal);
-      cancelCompanyBtn?.addEventListener('click', closeCompanyModal);
-      companyModal?.addEventListener('click', e => { if (e.target === companyModal) closeCompanyModal(); });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape' && companyModal.style.display === 'flex') closeCompanyModal(); });
-
-      companyForm?.addEventListener('submit', async (e)=>{
-        e.preventDefault();
-        const name = document.getElementById('new_company_name').value.trim();
-        const addr = document.getElementById('new_company_address').value.trim();
-        if(!name){ alert('Company name required'); return; }
-        const fd = new FormData();
-        fd.append('name', name);
-        fd.append('address', addr);
-        try {
-          const resp = await fetch('company_save.php', { method:'POST', body: fd });
-          const data = await resp.json();
-          if(!data.ok) throw new Error(data.error || 'Failed to save company');
-
-          const sel = document.getElementById('company');
-          if(sel){
-              const opt = document.createElement('option');
-              opt.value = data.company.id;
-              opt.textContent = data.company.name;
-              opt.setAttribute('data-address', data.company.address || '');
-              opt.selected = true;
-              sel.appendChild(opt);
-              sel.dispatchEvent(new Event('change'));
-          }
-          closeCompanyModal();
-        } catch(err) { alert(err.message); }
-      });
-
-      // Confirm modal flow
-      const form = document.getElementById('biltyForm');
-      const confirmModal = document.getElementById('confirmModal');
-      const confirmClose = document.getElementById('confirmModalClose');
-      const cancelConfirmBtn = document.getElementById('cancelConfirmBtn');
-      const confirmSaveBtn = document.getElementById('confirmSaveBtn');
-      let confirmed = false;
-
-      function openConfirmModal() {
-        populateConfirmDetails();
-        confirmModal.style.display = 'flex';
-        confirmModal.setAttribute('aria-hidden', 'false');
-        setTimeout(()=>confirmSaveBtn?.focus(), 60);
-      }
-      function closeConfirmModal() {
-        confirmModal.style.display = 'none';
-        confirmModal.setAttribute('aria-hidden', 'true');
-      }
-
-      function populateConfirmDetails(){
-        document.getElementById('c_bilty_no').textContent = document.getElementById('bilty_no').value || '';
-        const csel = document.getElementById('company');
-        const companyText = csel && csel.selectedIndex > -1 ? csel.options[csel.selectedIndex].text : '';
-        document.getElementById('c_company').textContent = companyText || '';
-        document.getElementById('c_date').textContent = document.getElementById('date').value || '';
-        document.getElementById('c_amount').textContent = document.getElementById('amount').value || toFixedSafe(0);
-        document.getElementById('c_advance').textContent = document.getElementById('advance').value || toFixedSafe(0);
-        document.getElementById('c_balance').textContent = document.getElementById('balance').value || toFixedSafe(0);
-        document.getElementById('c_rate_type').textContent = document.getElementById('fixedChk')?.checked ? 'Fixed' : 'Per KM';
-      }
-
-      confirmClose?.addEventListener('click', () => { confirmed = false; closeConfirmModal(); });
-      cancelConfirmBtn?.addEventListener('click', () => { confirmed = false; closeConfirmModal(); });
-      confirmModal?.addEventListener('click', e => { if (e.target === confirmModal) { confirmed = false; closeConfirmModal(); } });
-      document.addEventListener('keydown', e => { if (e.key === 'Escape' && confirmModal.style.display === 'flex') { confirmed = false; closeConfirmModal(); } });
-
-      confirmSaveBtn?.addEventListener('click', () => {
-        confirmed = true;
-        closeConfirmModal();
-        setTimeout(()=>form.submit(), 50);
-      });
-
-      // intercept submit to show confirm modal
-      form.addEventListener('submit', function(e) {
-        if (confirmed) return true;
-        e.preventDefault();
-
-        const bilty_no = document.getElementById('bilty_no').value.trim();
-        const company = document.getElementById('company').value;
-        if (!bilty_no || !company) {
-          alert('Please fill required fields: Bilty number and Company.');
-          return;
-        }
-
-        calc();
-        openConfirmModal();
-      });
-
-      // Reset button handler
-      document.getElementById('resetBtn')?.addEventListener('click', function() {
-        form.reset();
-        toggleFixedFields(false); // Reset to per-km mode
-        calc();
-      });
-
-      // initial calc
-      calc();
     });
+    
+    // Financial calculations
+    const kmInput = document.getElementById('km');
+    const rateInput = document.getElementById('rate');
+    const fixedCheckbox = document.getElementById('fixed');
+    const amountInput = document.getElementById('amount');
+    const advanceInput = document.getElementById('advance');
+    const balanceInput = document.getElementById('balance');
+    
+    function calculateFinancials() {
+      const km = parseFloat(kmInput?.value || 0);
+      const rate = parseFloat(rateInput?.value || 0);
+      const isFixed = fixedCheckbox?.checked || false;
+      const advance = parseFloat(advanceInput?.value || 0);
+      
+      let amount = parseFloat(amountInput?.value || 0);
+      
+      if (!isFixed) {
+        amount = km * rate;
+        if (amountInput) amountInput.value = amount.toFixed(2);
+      }
+      
+      const balance = amount - advance;
+      if (balanceInput) balanceInput.value = balance.toFixed(2);
+    }
+    
+    // Attach calculation listeners
+    [kmInput, rateInput, advanceInput, amountInput].forEach(input => {
+      input?.addEventListener('input', calculateFinancials);
+    });
+    fixedCheckbox?.addEventListener('change', function() {
+      if (this.checked) {
+        amountInput?.removeAttribute('readonly');
+        amountInput?.focus();
+      } else {
+        calculateFinancials();
+      }
+    });
+    
+    // Initial calculation
+    calculateFinancials();
   </script>
 </body>
 </html>

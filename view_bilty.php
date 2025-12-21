@@ -347,7 +347,6 @@ if ($res) {
   <?php include 'header.php'; ?>
 
   <div class="page-container">
-  <div class="page-container">
     <!-- Page Header -->
     <div class="page-header">
       <h1 class="page-title">
@@ -500,201 +499,37 @@ if ($res) {
       </div>
     </div>
   </div>
-                </tr>
-              <?php endif; ?>
-
-              <?php foreach ($rows as $r):
-                  $owner = '';
-                  $driver_number = '';
-                  if (!empty($r['details'])) {
-                      if (preg_match('/Vehicle:\s*(Own|Rental)/i', $r['details'], $m)) $owner = ucfirst(strtolower($m[1]));
-                      if (preg_match('/Driver\s*number:\s*([0-9+\-\s()]+)/i', $r['details'], $m2)) $driver_number = trim($m2[1]);
-                  }
-                  $balance = (float)($r['balance'] ?? 0);
-              ?>
-                <tr>
-                  <td class="select-col">
-                    <input class="row-checkbox" type="checkbox" value="<?php echo intval($r['id']); ?>" aria-label="Select bilty <?php echo htmlspecialchars($r['bilty_no']); ?>">
-                  </td>
-                  <td><?php echo htmlspecialchars($r['id']); ?></td>
-                  <td class="text-primary font-semibold"><?php echo htmlspecialchars($r['bilty_no']); ?></td>
-                  <td class="text-gray-600"><?php echo htmlspecialchars($r['date']); ?></td>
-                  <td><?php echo htmlspecialchars($r['company_name'] ?? ''); ?></td>
-                  <td><?php echo htmlspecialchars($r['from_city'] ?? '') . ' → ' . htmlspecialchars($r['to_city'] ?? ''); ?></td>
-                  <td><?php echo htmlspecialchars($r['vehicle_no'] ?? ''); ?></td>
-                  <td>
-                    <?php if ($owner === 'Rental'): ?>
-                      <span class="badge badge-rental">Rental</span>
-                    <?php elseif ($owner === 'Own'): ?>
-                      <span class="badge badge-own">Own</span>
-                    <?php else: ?>
-                      <span class="badge badge-dash">—</span>
-                    <?php endif; ?>
-                  </td>
-                  <td>
-                    <div><?php echo htmlspecialchars($r['driver_name'] ?? ''); ?></div>
-                    <?php if ($driver_number): ?><div style="font-size:12px; color:#64748b;"><?php echo htmlspecialchars($driver_number); ?></div><?php endif; ?>
-                  </td>
-
-                  <td class="text-right text-gray-700"><?php echo number_format((float)($r['km'] ?? 0)); ?></td>
-                  <td class="text-right text-gray-700"><?php echo number_format((float)($r['rate'] ?? 0), 2); ?></td>
-
-                  <td class="text-right font-medium"><?php echo number_format((float)($r['amount'] ?? 0), 2); ?></td>
-                  <td class="text-right"><?php echo number_format((float)($r['advance'] ?? 0), 2); ?></td>
-                  <td class="text-right <?php echo $balance > 0 ? 'text-red-600 font-bold' : 'text-green-700'; ?>">
-                    <?php echo number_format($balance, 2); ?>
-                  </td>
-
-                  <td class="text-right">
-                    <a href="view_bilty_details.php?id=<?php echo urlencode($r['id']); ?>" class="btn btn-primary" style="padding:6px 10px;">
-                      <i class="fa-solid fa-eye"></i> View
-                    </a>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Mobile cards -->
-      <div class="md:hidden space-y-4">
-        <?php if (empty($rows)): ?>
-          <div class="card" style="text-align:center; color:#475569;">No bilties found. Adjust filters or clear the search.</div>
-        <?php endif; ?>
-
-        <?php foreach ($rows as $r):
-           $owner = '';
-           $driver_number = '';
-           if (!empty($r['details'])) {
-               if (preg_match('/Vehicle:\s*(Own|Rental)/i', $r['details'], $m)) $owner = ucfirst(strtolower($m[1]));
-               if (preg_match('/Driver\s*number:\s*([0-9+\-\s()]+)/i', $r['details'], $m2)) $driver_number = trim($m2[1]);
-           }
-           $balance = (float)($r['balance'] ?? 0);
-        ?>
-          <article class="card">
-            <div class="flex items-start justify-between">
-              <div>
-                <div class="flex items-center gap-2">
-                  <input class="row-checkbox" type="checkbox" value="<?php echo intval($r['id']); ?>">
-                  <div class="text-lg font-semibold text-primary"><?php echo htmlspecialchars($r['bilty_no']); ?></div>
-                </div>
-                <div class="text-xs text-gray-500">
-                  <?php echo htmlspecialchars($r['date']); ?> • <?php echo htmlspecialchars($r['company_name'] ?? ''); ?>
-                </div>
-              </div>
-              <div class="text-right">
-                <div class="text-sm text-gray-500">Amount</div>
-                <div class="text-lg font-medium"><?php echo number_format((float)($r['amount'] ?? 0), 2); ?></div>
-                <div class="mt-2">
-                  <a href="view_bilty_details.php?id=<?php echo urlencode($r['id']); ?>" class="btn btn-primary" style="padding:6px 10px;">View</a>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-3 grid grid-cols-2 gap-2 text-sm text-gray-700">
-              <div><span class="font-medium">Route:</span> <?php echo htmlspecialchars($r['from_city'] ?? '') . ' → ' . htmlspecialchars($r['to_city'] ?? ''); ?></div>
-              <div><span class="font-medium">Vehicle:</span> <?php echo htmlspecialchars($r['vehicle_no'] ?? ''); ?></div>
-              <div><span class="font-medium">Driver:</span> <?php echo htmlspecialchars($r['driver_name'] ?? ''); ?></div>
-              <div><span class="font-medium">Owner:</span> <?php echo $owner ?: '—'; ?></div>
-              <div><span class="font-medium">KM:</span> <?php echo number_format((float)($r['km'] ?? 0)); ?></div>
-              <div><span class="font-medium">Rate:</span> <?php echo number_format((float)($r['rate'] ?? 0), 2); ?></div>
-              <div><span class="font-medium">Balance:</span>
-                <span class="<?php echo $balance > 0 ? 'text-red-600 font-semibold' : 'text-green-700'; ?>">
-                  <?php echo number_format($balance, 2); ?>
-                </span>
-              </div>
-            </div>
-          </article>
-        <?php endforeach; ?>
-      </div>
-    </div>
-  </main>
 
   <script>
-    // Enhance the two left controls with the requested styled background/shadow
-    (function styleFilterFields() {
-      const company = document.getElementById('company');
-      const q = document.getElementById('q');
-      if (company) company.classList.add('filter-field');
-      if (q) q.classList.add('filter-field');
-    })();
+    // Reset filters button
+    document.getElementById('resetFilters')?.addEventListener('click', function() {
+      window.location.href = window.location.pathname;
+    });
 
-    // Keep same places, but auto-apply: debounce search, immediate on company change
-    (function(){
-      const companySel = document.getElementById('company');
-      const qInput = document.getElementById('q');
-      const reset = document.getElementById('resetFilters');
+    // Select all checkbox
+    document.getElementById('selectAll')?.addEventListener('change', function() {
+      const checkboxes = document.querySelectorAll('.bilty-checkbox');
+      checkboxes.forEach(cb => cb.checked = this.checked);
+    });
 
-      function applyFilters() {
-        const params = new URLSearchParams(window.location.search);
-        const company = companySel ? companySel.value : '0';
-        const q = qInput ? qInput.value.trim() : '';
-
-        if (company && company !== '0') params.set('company', company); else params.delete('company');
-        if (q) params.set('q', q); else params.delete('q');
-
-        const url = window.location.pathname + (params.toString() ? ('?' + params.toString()) : '');
-        window.location.replace(url);
+    // Generate Bill button
+    document.getElementById('printSelectedBtn')?.addEventListener('click', function() {
+      const checked = Array.from(document.querySelectorAll('.bilty-checkbox:checked'))
+        .map(cb => cb.value);
+      
+      if (checked.length === 0) {
+        alert('Please select at least one bilty to generate a bill.');
+        return;
       }
+      
+      const ids = checked.join(',');
+      window.open('print_bulk.php?ids=' + ids, '_blank');
+    });
 
-      function debounce(fn, wait) {
-        let t; return function(...args){
-          clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), wait);
-        }
-      }
-      const debouncedApply = debounce(applyFilters, 350);
-
-      if (companySel) companySel.addEventListener('change', applyFilters);
-      if (qInput) qInput.addEventListener('input', debouncedApply);
-
-      // Reset chip behaves like previous "Clear"
-      if (reset) {
-        const doReset = () => {
-          if (companySel) companySel.value = '0';
-          if (qInput) qInput.value = '';
-          applyFilters();
-        };
-        reset.addEventListener('click', doReset);
-        reset.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') { e.preventDefault(); doReset(); }});
-      }
-    })();
-
-    // Selection UI and bulk print
-    (function(){
-      const selectAll = document.getElementById('selectAll');
-      const checkboxes = () => Array.from(document.querySelectorAll('.row-checkbox'));
-      const getSelectedIds = () => checkboxes().filter(cb => cb.checked).map(cb => cb.value);
-
-      if (selectAll) {
-        selectAll.addEventListener('change', function(){
-          checkboxes().forEach(cb => cb.checked = this.checked);
-        });
-      }
-
-      document.addEventListener('change', function(e){
-        if (!e.target.matches('.row-checkbox')) return;
-        const all = checkboxes();
-        if (all.length === 0) return;
-        const allChecked = all.every(cb => cb.checked);
-        if (selectAll) selectAll.checked = allChecked;
-      });
-
-      const openInNewWindow = (url) => {
-        const w = window.open(url, '_blank', 'noopener');
-        if (w) w.focus();
-      };
-
-      const printBtn = document.getElementById('printSelectedBtn');
-      if (printBtn) {
-        printBtn.addEventListener('click', function(){
-          const ids = getSelectedIds();
-          if (ids.length === 0) { alert('Please select at least one bilty to print.'); return; }
-          const url = 'print_bulk.php?ids=' + encodeURIComponent(ids.join(','));
-          openInNewWindow(url + '&auto=1');
-        });
-      }
-    })();
+    // Auto-submit on filter change
+    document.getElementById('company')?.addEventListener('change', function() {
+      document.getElementById('filterForm').submit();
+    });
   </script>
 </body>
 </html>
