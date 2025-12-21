@@ -85,7 +85,7 @@ body {
 
 /* Page Background */
 .bg-page {
-  background: radial-gradient(1200px 420px at 50% 0%, rgba(153, 27, 65, 0.08), transparent 60%),
+  background: radial-gradient(1200px 420px at 50% 0%, rgba(151, 17, 58, 0.08), transparent 60%),
               var(--page-bg);
   min-height: 100vh;
 }
@@ -110,8 +110,8 @@ body {
     rgba(255, 255, 255, 0.97),
     rgba(255, 255, 255, 0.93)
   ),
-  radial-gradient(900px 280px at -10% -10%, rgba(151, 17, 58, 0.09), transparent 60%),
-  radial-gradient(900px 280px at 110% -10%, rgba(151, 17, 58, 0.07), transparent 60%);
+  radial-gradient(50% 30% at -10% -10%, rgba(151, 17, 58, 0.09), transparent 60%),
+  radial-gradient(50% 30% at 110% -10%, rgba(151, 17, 58, 0.07), transparent 60%);
   border-radius: var(--radius-2xl);
   box-shadow: 0 10px 30px rgba(151, 17, 58, 0.11),
               0 30px 60px rgba(151, 17, 58, 0.18);
@@ -343,7 +343,7 @@ body {
   display: inline-block;
   width: 1.5rem;
   height: 1.5rem;
-  border: 3px solid rgba(151, 17, 58, 0.2);
+  border: 3px solid var(--primary-light);
   border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
