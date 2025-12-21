@@ -49,235 +49,457 @@ if ($res) {
 <html lang="en">
 <head>
   <?php include 'head.php'; ?>
-  <title>Bilties — Bilty Management</title>
+  <title>All Bilties — Bilty Management</title>
   <style>
-    :root { --tw-shadow-color: #2c1810; }
-
-    /* Page bg to match theme */
-    body.bg-page {
-      background:
-        radial-gradient(1200px 420px at 50% -10%, rgba(153, 27, 65, .10), transparent 60%),
-        #efe6f3;
+    :root {
+      --primary: #97113a;
+      --primary-hover: #b31547;
     }
-
-    /* Keep same layout, just style fields */
-    .filter-field {
-      appearance: none;
+    
+    body {
+      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .page-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    .page-header {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .page-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #111827;
+      margin: 0 0 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .page-subtitle {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    
+    .filter-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      align-items: end;
+    }
+    
+    .filter-input,
+    .filter-select {
       width: 100%;
-      border: 1px solid #d7dde7;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e5e7eb;
       border-radius: 10px;
-      padding: 10px 12px;
-      background: #fff;
-      box-shadow: 2px 2px 0 0 var(--tw-shadow-color);
-      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+      font-size: 0.95rem;
+      transition: all 0.2s;
     }
-    .filter-field:focus {
+    
+    .filter-input:focus,
+    .filter-select:focus {
       outline: none;
-      border-color: var(--primary, #97113a);
-      box-shadow:
-        0 0 0 2px rgba(151,17,58,.22),
-        2px 2px 0 0 var(--tw-shadow-color);
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(151, 17, 58, 0.1);
     }
-
-    .filter-chip {
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 8px 12px; border-radius: 10px; font-size:14px; font-weight:600;
-      border: 1px solid #d7dde7; background:#fff; color:#0f172a;
-      box-shadow: 2px 2px 0 0 var(--tw-shadow-color);
-      user-select: none;
-      cursor: pointer;
+    
+    .filter-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
     }
-    .filter-chip i { opacity:.9; }
-    .filter-chip:hover {
-      background: #f8fafc;
-    }
-
-    /* Table card with scrollable container */
+    
     .table-card {
-      background: #fff;
-      border: 1px solid rgba(2, 6, 23, 0.06);
+      background: white;
       border-radius: 16px;
       overflow: hidden;
-      box-shadow: 2px 2px 0 0 var(--tw-shadow-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
     }
-
-    .table-scroll-container {
-      max-height: 600px;
-      overflow-y: auto;
+    
+    .table-header {
+      padding: 1.5rem;
+      border-bottom: 2px solid #f3f4f6;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .table-info {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+    
+    .table-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    .table-wrapper {
       overflow-x: auto;
+      max-height: 70vh;
     }
-
-    /* Custom scrollbar styling */
-    .table-scroll-container::-webkit-scrollbar {
-      width: 10px;
-      height: 10px;
+    
+    .modern-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
     }
-
-    .table-scroll-container::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 10px;
-    }
-
-    .table-scroll-container::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 10px;
-      border: 2px solid #f1f5f9;
-    }
-
-    .table-scroll-container::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-
-    /* Firefox scrollbar */
-    .table-scroll-container {
-      scrollbar-width: thin;
-      scrollbar-color: #cbd5e1 #f1f5f9;
-    }
-
-    table { width:100%; border-collapse: separate; border-spacing: 0; }
-    thead th {
-      position: sticky; 
+    
+    .modern-table thead th {
+      position: sticky;
       top: 0;
-      background: linear-gradient(180deg, #f9fafb, #f3f4f6);
-      color:#475569; 
-      font-size:12px; 
-      text-transform:uppercase; 
-      letter-spacing:.02em;
-      border-bottom:1px solid #e5e7eb; 
-      padding:10px 12px; 
-      z-index:10;
-      text-align:left;
+      background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
+      color: #374151;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 2px solid #e5e7eb;
+      z-index: 10;
     }
-    tbody td { padding:12px; border-bottom:1px solid #f1f5f9; color:#0f172a; font-size:14px; }
-    tbody tr:nth-child(odd) { background:#ffffff; }
-    tbody tr:nth-child(even) { background:#fcfcfd; }
-    tbody tr:hover { background:#f8fafc; }
-
-    .select-col { width:44px; text-align:center; }
-    .text-right { text-align:right; }
-
-    /* Badges */
-    .badge {
-      display:inline-flex; align-items:center; gap:6px;
-      font-size: 11px; font-weight: 700;
-      padding: 2px 8px; border-radius: 999px; border:1px solid transparent;
+    
+    .modern-table tbody tr {
+      transition: background 0.15s;
     }
-    .badge-own { background:#ecfdf5; color:#065f46; border-color:#a7f3d0; }
-    .badge-rental { background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe; }
-    .badge-dash { background:#f1f5f9; color:#475569; border-color:#e2e8f0; }
-
-    /* Buttons */
-    .btn {
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 8px 12px; border-radius: 10px; font-size:14px; font-weight:600;
-      border: 1px solid #d7dde7; background:#fff; color:#0f172a;
-      box-shadow: 2px 2px 0 0 var(--tw-shadow-color);
-      transition: filter .15s ease;
+    
+    .modern-table tbody tr:hover {
+      background: #f9fafb;
+    }
+    
+    .modern-table tbody td {
+      padding: 1rem;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 0.9375rem;
+      color: #111827;
+    }
+    
+    .modern-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    
+    .checkbox-cell {
+      width: 50px;
+      text-align: center;
+    }
+    
+    .checkbox-cell input[type="checkbox"] {
+      width: 1.125rem;
+      height: 1.125rem;
       cursor: pointer;
     }
-    .btn:hover { filter: brightness(1.03); }
-    .btn-primary { border-color: var(--primary, #97113a); background: var(--primary, #97113a); color:#fff; }
-
-    .count-muted { color:#64748b; font-size:13px; }
-
-    /* Mobile card */
-    .card {
-      background:#fff; border:1px solid rgba(2,6,23,.06); border-radius:16px; padding:16px;
-      box-shadow: 2px 2px 0 0 var(--tw-shadow-color);
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.025em;
     }
-
-    @media (max-width:768px) {
-      .select-col { width:34px; }
-      .table-scroll-container {
-        max-height: 500px;
+    
+    .badge-own {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .badge-rental {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: white;
+      box-shadow: 0 4px 12px rgba(151, 17, 58, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(151, 17, 58, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+    }
+    
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+    
+    .btn-icon {
+      padding: 0.625rem;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #6b7280;
+    }
+    
+    .empty-icon {
+      font-size: 3rem;
+      color: #d1d5db;
+      margin-bottom: 1rem;
+    }
+    
+    .empty-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #374151;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .empty-text {
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    
+    @media (max-width: 768px) {
+      .page-header {
+        padding: 1.5rem;
+      }
+      
+      .page-title {
+        font-size: 1.5rem;
+      }
+      
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .table-actions {
+        width: 100%;
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .modern-table {
+        font-size: 0.875rem;
+      }
+      
+      .modern-table thead th,
+      .modern-table tbody td {
+        padding: 0.75rem 0.5rem;
       }
     }
   </style>
 </head>
-<body class="bg-page min-h-screen text-gray-800">
+<body>
   <?php include 'header.php'; ?>
 
-  <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-    <div class="flex flex-col gap-6">
+  <div class="page-container">
+  <div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">
+        <i class="fa-solid fa-list-check" style="color: var(--primary);"></i>
+        All Bilties
+      </h1>
+      <p class="page-subtitle">View, search, and manage all your bilty records</p>
+    </div>
 
-      <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-2xl font-extrabold text-primary">Bilty Records</h1>
-          <!-- <p class="text-sm text-gray-600">Filters auto-apply; positions kept same.</p> -->
-        </div>
-        <!-- Kept right side clear (no New/Export per request) -->
-      </header>
-
-      <!-- Keep SAME PLACES: left has company + search; right has area where buttons used to be -->
-      <form id="filterForm" method="get" class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <!-- Left: dropdown + search (same container and widths as before) -->
-        <div class="flex items-center gap-3 w-full md:max-w-md">
-          <select id="company" name="company" class="block w-1/2 rounded-md border border-gray-200 px-0">
-            <option value="0">— All companies —</option>
-            <?php foreach ($companies as $c): ?>
-              <option value="<?php echo intval($c['id']); ?>" <?php if ($company_filter == intval($c['id'])) echo 'selected'; ?>>
-                <?php echo htmlspecialchars($c['name']); ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-
-          <input id="q" name="q" type="search" placeholder="Search bilty, company, driver, route..." value="<?php echo htmlspecialchars($q); ?>" class="block w-1/2 rounded-md border border-gray-200 px-3 py-2">
-        </div>
-
-        <!-- Right: keep the place where Apply/Clear buttons were, but show a non-action chip -->
-        <div class="">
-          <span class="" title="Filtering applies automatically">
-            
-          </span>
-          <!-- second chip to keep spacing similar to two buttons previously -->
-          <span class="filter-chip" id="resetFilters" role="button" tabindex="0" title="Reset filters to defaults">
-            <i class="fa-solid fa-rotate-left"></i> Clear Search
-          </span>
+    <!-- Filter Card -->
+    <div class="filter-card">
+      <form id="filterForm" method="get">
+        <div class="filter-grid">
+          <div>
+            <label class="filter-label">Company</label>
+            <select id="company" name="company" class="filter-select">
+              <option value="0">All Companies</option>
+              <?php foreach ($companies as $c): ?>
+                <option value="<?php echo intval($c['id']); ?>" <?php if ($company_filter == intval($c['id'])) echo 'selected'; ?>>
+                  <?php echo htmlspecialchars($c['name']); ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+          
+          <div>
+            <label class="filter-label">Search</label>
+            <input 
+              id="q" 
+              name="q" 
+              type="search" 
+              class="filter-input"
+              placeholder="Bilty no, company, driver, route..." 
+              value="<?php echo htmlspecialchars($q); ?>"
+            />
+          </div>
+          
+          <div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              <i class="fa-solid fa-search"></i>
+              Search
+            </button>
+          </div>
+          
+          <div>
+            <button type="button" id="resetFilters" class="btn btn-secondary" style="width: 100%;">
+              <i class="fa-solid fa-rotate-left"></i>
+              Clear
+            </button>
+          </div>
         </div>
       </form>
+    </div>
 
-      <div class="flex items-center justify-between">
-        <div class="count-muted">Showing <strong><?php echo count($rows); ?></strong> record(s)</div>
-
-        <div class="flex items-center gap-2">
-          <button id="printSelectedBtn" class="btn btn-primary" type="button">
+    <!-- Table Card -->
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-info">
+          Showing <strong><?php echo count($rows); ?></strong> bilty records
+        </div>
+        <div class="table-actions">
+          <a href="add_bilty.php" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i>
+            Add New Bilty
+          </a>
+          <button id="printSelectedBtn" class="btn btn-secondary" type="button">
             <i class="fa-solid fa-file-invoice"></i>
             Generate Bill
           </button>
-          <!-- Download PDF / Export CSV / New Bilty removed as requested -->
         </div>
       </div>
-
-      <!-- Desktop Table with Scrollable Container -->
-      <div class="hidden md:block table-card">
-        <div class="table-scroll-container">
-          <table class="min-w-full">
+      
+      <div class="table-wrapper">
+        <?php if (empty($rows)): ?>
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fa-solid fa-inbox"></i>
+            </div>
+            <h3 class="empty-title">No bilties found</h3>
+            <p class="empty-text">Try adjusting your search filters or add a new bilty</p>
+          </div>
+        <?php else: ?>
+          <table class="modern-table">
             <thead>
               <tr>
-                <th class="select-col"><input id="selectAll" type="checkbox" aria-label="Select all"></th>
+                <th class="checkbox-cell">
+                  <input id="selectAll" type="checkbox" aria-label="Select all" />
+                </th>
                 <th>#</th>
                 <th>Bilty No</th>
                 <th>Date</th>
                 <th>Company</th>
                 <th>Route</th>
-                <th>Vehicle No</th>
-                <th>Owner</th>
+                <th>Vehicle</th>
                 <th>Driver</th>
-                <th class="text-right">KM</th>
-                <th class="text-right">Rate</th>
-                <th class="text-right">Amount</th>
-                <th class="text-right">Advance</th>
-                <th class="text-right">Balance</th>
-                <th class="text-right">Actions</th>
+                <th style="text-align: right;">Amount</th>
+                <th style="text-align: right;">Balance</th>
+                <th style="text-align: center;">Actions</th>
               </tr>
             </thead>
-
             <tbody id="biltiesTableBody">
-              <?php if (empty($rows)): ?>
-                <tr>
-                  <td colspan="15" style="padding:20px; text-align:center; color:#64748b;">
-                    No bilties found. Adjust filters or clear the search.
-                  </td>
+              <?php
+              $index = 1;
+              foreach ($rows as $r):
+                $bilty_id = (int)$r['id'];
+                $bilty_no = htmlspecialchars($r['bilty_no'] ?? '');
+                $date = htmlspecialchars($r['date'] ?? '');
+                $company = htmlspecialchars($r['company_name'] ?? '');
+                $from = htmlspecialchars($r['from_city'] ?? '');
+                $to = htmlspecialchars($r['to_city'] ?? '');
+                $route = $from . ($to ? ' → ' . $to : '');
+                $vehicle_no = htmlspecialchars($r['vehicle_no'] ?? '');
+                $driver = htmlspecialchars($r['driver_name'] ?? '');
+                $amount = number_format((float)($r['amount'] ?? 0), 2);
+                $balance = number_format((float)($r['balance'] ?? 0), 2);
+                
+                // Determine vehicle ownership
+                $details = $r['details'] ?? '';
+                $isRental = (stripos($details, 'rental') !== false);
+                $ownerBadge = $isRental 
+                  ? '<span class="badge badge-rental">Rental</span>'
+                  : '<span class="badge badge-own">Own</span>';
+              ?>
+              <tr>
+                <td class="checkbox-cell">
+                  <input type="checkbox" class="bilty-checkbox" value="<?php echo $bilty_id; ?>" />
+                </td>
+                <td><?php echo $index++; ?></td>
+                <td><strong><?php echo $bilty_no; ?></strong></td>
+                <td><?php echo $date; ?></td>
+                <td><?php echo $company; ?></td>
+                <td><?php echo $route ?: '—'; ?></td>
+                <td>
+                  <?php echo $vehicle_no ?: '—'; ?>
+                  <?php echo $ownerBadge; ?>
+                </td>
+                <td><?php echo $driver ?: '—'; ?></td>
+                <td style="text-align: right;"><strong>Rs. <?php echo $amount; ?></strong></td>
+                <td style="text-align: right;">Rs. <?php echo $balance; ?></td>
+                <td style="text-align: center;">
+                  <a href="view_bilty_details.php?id=<?php echo $bilty_id; ?>" class="btn btn-secondary btn-icon" title="View Details">
+                    <i class="fa-solid fa-eye"></i>
+                  </a>
+                </td>
+              </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
                 </tr>
               <?php endif; ?>
 
