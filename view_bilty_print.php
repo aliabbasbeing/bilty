@@ -87,18 +87,18 @@ $isFixed = ($rate == 0.0);
   --font: "Arial","Helvetica",sans-serif;
   --fs: 11px;
   --hair: 0.6px;
-  /* Updated color palette */
-  --primary-color: #06324e;
-  --primary-light: #dbeafe;
-  --primary-dark: #06324e;
-  --accent-bg: #e0e7ff;
-  --header-bg: #06324e;
+  /* Updated color palette - matching main theme */
+  --primary-color: #97113a;
+  --primary-light: #fff0f5;
+  --primary-dark: #7a0e2f;
+  --accent-bg: #fff0f5;
+  --header-bg: #97113a;
   --header-text: #ffffff;
-  --th-bg: #e0f2fe;
-  --th-border: #93c5fd;
+  --th-bg: #fff0f5;
+  --th-border: #97113a;
   --row-alt: #f8fafc;
-  --border-color: #cbd5e1;
-  --gradient-header: linear-gradient(to right, #06324e, #06324e);
+  --border-color: #e5e7eb;
+  --gradient-header: linear-gradient(135deg, #97113a 0%, #b31547 100%);
 }
 
 html,body {
