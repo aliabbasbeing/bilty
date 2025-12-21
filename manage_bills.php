@@ -432,7 +432,7 @@ function fmtMoney($v){ return number_format((float)$v, 2); }
 <body>
   <?php include 'header.php'; ?>
 
-
+  <div class="page-container">
     <!-- Page Header -->
     <div class="page-header">
       <h1 class="page-title">
