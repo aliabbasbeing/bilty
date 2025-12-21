@@ -1,0 +1,33 @@
+# Bilty Management - Files to ignore
+
+# Database dumps
+*.sql
+*.sqlite
+
+# Uploaded files / Generated PDFs (if you want to exclude them)
+bilty_pdfs/*.pdf
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment files
+.env
+.env.local
+
+# Backup files
+*.bak
+*.backup
