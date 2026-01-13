@@ -35,238 +35,388 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
   <?php include 'head.php'; ?>
-  <title>🚚 Bilty Management</title>
+  <title>🚚 Bilty Management Dashboard</title>
   <style>
     :root {
       --main-color: #97113a;
       --main-color-hover: #b31547;
       --main-color-light: #fff0f5;
+      --gradient-primary: linear-gradient(135deg, #97113a 0%, #c91f4f 100%);
+      --gradient-card: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     }
-    body.bg-page {
-      background:
-        radial-gradient(1200px 420px at 50% 0%, rgba(153, 27, 65, 0.10), transparent 60%),
-        #efe6f3;
+    
+    body {
+      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
-    .theme-surface {
+    
+    .dashboard-hero {
+      background: var(--gradient-primary);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      color: white;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(151, 17, 58, 0.3);
       position: relative;
       overflow: hidden;
-      background:
-        linear-gradient(0deg, rgba(255,255,255,.97), rgba(255,255,255,.93)),
-        radial-gradient(900px 280px at -10% -10%, rgba(151, 17, 58, .09), transparent 60%),
-        radial-gradient(900px 280px at 110% -10%, rgba(151, 17, 58, .07), transparent 60%);
-      border: none;
-      box-shadow:
-        0 10px 30px rgba(151,17,58,.11),
-        0 30px 60px rgba(151,17,58,.18);
-      border-radius: 28px;
     }
-    .bilty-search-row {
+    
+    .dashboard-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .stat-icon.primary {
+      background: linear-gradient(135deg, #97113a15, #97113a25);
+      color: var(--main-color);
+    }
+    
+    .stat-icon.success {
+      background: linear-gradient(135deg, #10b98115, #10b98125);
+      color: #10b981;
+    }
+    
+    .stat-icon.info {
+      background: linear-gradient(135deg, #3b82f615, #3b82f625);
+      color: #3b82f6;
+    }
+    
+    .stat-icon.warning {
+      background: linear-gradient(135deg, #f59e0b15, #f59e0b25);
+      color: #f59e0b;
+    }
+    
+    .stat-label {
+      color: #6b7280;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #111827;
+      line-height: 1;
+    }
+    
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    
+    .action-card {
+      background: white;
+      border-radius: 16px;
+      padding: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .action-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    
+    .action-card-header {
+      background: var(--gradient-primary);
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .action-card-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+    }
+    
+    .action-card-title {
+      color: white;
+      font-size: 1.25rem;
+      font-weight: 700;
+      flex: 1;
+    }
+    
+    .action-card-body {
+      padding: 1.5rem;
+      color: #6b7280;
+      font-size: 0.95rem;
+      flex: 1;
+    }
+    
+    .search-section {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+      border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .search-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .search-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--main-color-light);
+      color: var(--main-color);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    
+    .search-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    
+    .search-form {
       display: flex;
       gap: 1rem;
-      align-items: center;
-      margin-top: 2.5rem;
-      margin-bottom: 1.5rem;
       flex-wrap: wrap;
+      align-items: flex-end;
     }
-    .bilty-search-input {
-      flex: 1 1 200px;
-      min-width: 0;
-      font-size: 1.1rem;
-      border-radius: 12px;
-      border: 1px solid #cbd5e1;
-      padding: 0.9rem 1.2rem;
-      outline: none;
-      transition: border-color .14s;
-      background: #fff;
+    
+    .search-input-group {
+      flex: 1;
+      min-width: 250px;
     }
-    .bilty-search-input:focus {
-      border-color: var(--main-color);
-    }
-    .bilty-search-btn {
-      background: var(--main-color);
-      color: #fff;
-      font-weight: 700;
-      border-radius: 12px;
-      border: none;
-      padding: 0.9rem 2rem;
-      font-size: 1.1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: .8rem;
-      transition: background .14s, transform .12s;
-      box-shadow: 0 2px 8px rgba(151,17,58,.07);
-    }
-    .bilty-search-btn:hover,
-    .bilty-search-btn:focus {
-      background: var(--main-color-hover);
-      transform: translateY(-1px) scale(1.03);
-    }
-    .clear-search-btn {
-      background: #eee;
-      color: #97113a;
+    
+    .search-label {
+      display: block;
+      font-size: 0.875rem;
       font-weight: 600;
-      border-radius: 12px;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    
+    .search-input:focus {
+      outline: none;
+      border-color: var(--main-color);
+      box-shadow: 0 0 0 3px rgba(151, 17, 58, 0.1);
+    }
+    
+    .search-btn {
+      background: var(--gradient-primary);
+      color: white;
       border: none;
-      padding: 0.9rem 2rem;
-      font-size: 1.1rem;
+      padding: 0.875rem 2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
+      transition: all 0.2s;
       display: flex;
       align-items: center;
-      gap: .8rem;
-      margin-left: 1rem;
-      transition: background .14s, transform .12s;
-      box-shadow: 0 2px 8px rgba(151,17,58,.07);
+      gap: 0.5rem;
+      box-shadow: 0 4px 12px rgba(151, 17, 58, 0.3);
     }
-    .clear-search-btn:hover,
-    .clear-search-btn:focus {
-      background: #f8d6e6;
-      color: #b31547;
-      transform: translateY(-1px) scale(1.03);
+    
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(151, 17, 58, 0.4);
     }
-    @media (max-width: 480px) {
-      .bilty-search-row {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.6rem;
-      }
-      .bilty-search-btn,
-      .clear-search-btn {
-        width: 100%;
-        justify-content: center;
-        font-size: 1rem;
-        padding: .8rem 0;
-        margin-left: 0;
-      }
+    
+    .result-section {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-top: 1.5rem;
+      border: 1px solid rgba(0,0,0,0.05);
     }
-    .bilty-table-wrap {
-      width: 100%;
-      overflow-x: auto;
-      margin-top: 1.2rem;
-      margin-bottom: 1.2rem;
-      border-radius: 18px;
-      background: #fff;
-      box-shadow: 0 2px 10px rgba(151,17,58,.10);
-      position: relative;
-    }
-    .bilty-table {
-      min-width: 950px;
+    
+    .result-table {
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      border-radius: 18px;
       overflow: hidden;
-      background: #fff;
     }
-    .bilty-table th, .bilty-table td {
-      padding: 1.1rem 1.2rem;
-      border-bottom: 1px solid #edf2f7;
-      font-size: 1.08rem;
+    
+    .result-table th {
+      background: #f9fafb;
+      padding: 1rem;
       text-align: left;
-      white-space: nowrap;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 2px solid #e5e7eb;
     }
-    .bilty-table th {
-      background: var(--main-color);
-      color: #fff;
-      font-weight: 700;
-      border-top: none;
+    
+    .result-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #f3f4f6;
+      color: #111827;
     }
-    .bilty-table tr:last-child td {
-      border-bottom: none;
+    
+    .result-table tbody tr:hover {
+      background: #f9fafb;
     }
-    .bilty-table tr {
-      background: #fff;
+    
+    .btn-group {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
     }
-    .print-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6em;
-      background: var(--main-color);
-      color: #fff;
-      border: none;
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
       border-radius: 10px;
       font-weight: 600;
-      font-size: 1.08rem;
-      padding: 0.8rem 1.5rem;
-      margin: 1rem 0 0 0;
+      font-size: 0.95rem;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(151,17,58,.11);
-      transition: background .13s, transform .12s;
-    }
-    .print-btn:hover,
-    .print-btn:focus {
-      background: var(--main-color-hover);
-      transform: translateY(-1px) scale(1.03);
-    }
-    @media (max-width: 850px) {
-      .bilty-table th, .bilty-table td {
-        padding: .7rem .8rem;
-        font-size: .97rem;
-      }
-    }
-    @media (max-width: 500px) {
-      .bilty-table th, .bilty-table td {
-        padding: .5rem .7rem;
-        font-size: .93rem;
-      }
-      .bilty-table-wrap {
-        margin-top: .8rem;
-      }
-    }
-    .main-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.3rem;
-      margin-top: 1.6rem;
-    }
-    .action-btn {
-      display: flex;
-      align-items: center;
-      gap: 1.1rem;
-      background: var(--main-color);
-      color: #fff;
-      border-radius: 18px;
-      padding: 1.15rem 1.3rem;
-      font-size: 1.18rem;
-      font-weight: 700;
-      border: none;
-      box-shadow: 0 2px 10px rgba(151,17,58,.10);
-      transition: transform .13s, box-shadow .22s, background .18s;
-      text-decoration: none;
-    }
-    .action-btn:hover,
-    .action-btn:focus {
-      background: var(--main-color-hover);
-      transform: translateY(-2px) scale(1.02);
-      color: #fff;
-      box-shadow: 0 8px 24px rgba(151,17,58,.14);
-    }
-    .icon-chip {
-      width: 2.7rem;
-      height: 2.7rem;
+      transition: all 0.2s;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      border-radius: .7rem;
-      background: #97113a;
-      font-size: 1.6rem;
+      gap: 0.5rem;
+      border: none;
     }
-    @media (max-width: 640px) {
-      .main-actions {
+    
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: 0 2px 8px rgba(151, 17, 58, 0.2);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(151, 17, 58, 0.3);
+    }
+    
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+    
+    .no-result {
+      text-align: center;
+      padding: 3rem;
+      color: #6b7280;
+    }
+    
+    .no-result-icon {
+      font-size: 3rem;
+      color: #d1d5db;
+      margin-bottom: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-hero {
+        padding: 2rem 1.5rem;
+      }
+      
+      .stats-grid {
         grid-template-columns: 1fr;
-        gap: 1rem;
       }
-      .action-btn {
-        font-size: 1rem;
-        padding: .95rem 1rem;
+      
+      .quick-actions {
+        grid-template-columns: 1fr;
       }
-    }
-    .footer-plate {
-      background: rgba(255,255,255,.88);
-      border: 1px solid rgba(2,6,23,.08);
-      box-shadow:
-        0 2px 4px rgba(16,24,40,.04),
-        0 8px 24px rgba(16,24,40,.10);
+      
+      .search-form {
+        flex-direction: column;
+      }
+      
+      .search-input-group {
+        width: 100%;
+      }
+      
+      .search-btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .result-table {
+        font-size: 0.875rem;
+      }
+      
+      .result-table th,
+      .result-table td {
+        padding: 0.75rem 0.5rem;
+      }
     }
   </style>
   <script>
@@ -279,124 +429,235 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
   </script>
 </head>
-<body class="bg-page min-h-screen text-gray-800">
+<body style="background: #f0f2f5;">
   <?php include 'header.php'; ?>
 
-  <main class="max-w-6xl mx-auto py-10 px-4 md:px-6">
-    <section class="theme-surface rounded-2xl p-6 md:p-10">
-      <h1 class="text-3xl md:text-5xl font-extrabold" style="color:var(--main-color);font-family:'Montserrat',sans-serif;">
-        Bahar Ali - Bilty Management System
-      </h1>
-      <!-- Bilty number search field -->
-      <form class="bilty-search-row" action="" method="post" autocomplete="off">
-        <input type="text" name="bilty_no" class="bilty-search-input" placeholder="Enter Bilty Number..." required value="<?php echo htmlspecialchars($bilty_no); ?>" />
-        <button type="submit" class="bilty-search-btn">
+  <main class="container" style="max-width: 1400px; margin: 0 auto; padding: 2rem 1rem;">
+    
+    <!-- Hero Section -->
+    <div class="dashboard-hero">
+      <div class="hero-content">
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 0.5rem 0;">
+          Bilty Management System
+        </h1>
+        <p style="font-size: 1.125rem; opacity: 0.95; margin: 0;">
+          Welcome back! Manage your bilties, track shipments, and generate reports efficiently.
+        </p>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon primary">
+          <i class="fa-solid fa-file-invoice"></i>
+        </div>
+        <div class="stat-label">Total Bilties</div>
+        <div class="stat-value">
+          <?php
+          $count_result = $conn->query("SELECT COUNT(*) as total FROM consignments");
+          $total_count = $count_result ? $count_result->fetch_assoc()['total'] : 0;
+          echo number_format($total_count);
+          ?>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon success">
+          <i class="fa-solid fa-money-bill-wave"></i>
+        </div>
+        <div class="stat-label">Total Amount</div>
+        <div class="stat-value">
+          <?php
+          $amount_result = $conn->query("SELECT SUM(amount) as total FROM consignments");
+          $total_amount = $amount_result ? $amount_result->fetch_assoc()['total'] : 0;
+          echo 'Rs. ' . number_format($total_amount);
+          ?>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon warning">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+        <div class="stat-label">Pending Balance</div>
+        <div class="stat-value">
+          <?php
+          $balance_result = $conn->query("SELECT SUM(balance) as total FROM consignments WHERE balance > 0");
+          $total_balance = $balance_result ? $balance_result->fetch_assoc()['total'] : 0;
+          echo 'Rs. ' . number_format($total_balance);
+          ?>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon info">
+          <i class="fa-solid fa-calendar-day"></i>
+        </div>
+        <div class="stat-label">This Month</div>
+        <div class="stat-value">
+          <?php
+          $month_result = $conn->query("SELECT COUNT(*) as total FROM consignments WHERE MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE())");
+          $month_count = $month_result ? $month_result->fetch_assoc()['total'] : 0;
+          echo number_format($month_count);
+          ?>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <a href="add_bilty.php" class="action-card">
+        <div class="action-card-header">
+          <div class="action-card-icon">
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <div class="action-card-title">Create New Bilty</div>
+          <i class="fa-solid fa-arrow-right" style="color: white; font-size: 1.25rem;"></i>
+        </div>
+        <div class="action-card-body">
+          Quickly add a new bilty record with all shipment details, vehicle information, and payment terms.
+        </div>
+      </a>
+      
+      <a href="view_bilty.php" class="action-card">
+        <div class="action-card-header">
+          <div class="action-card-icon">
+            <i class="fa-solid fa-list"></i>
+          </div>
+          <div class="action-card-title">View All Bilties</div>
+          <i class="fa-solid fa-arrow-right" style="color: white; font-size: 1.25rem;"></i>
+        </div>
+        <div class="action-card-body">
+          Browse, search, and filter through all your bilty records with advanced filtering options.
+        </div>
+      </a>
+      
+      <a href="manage_bills.php" class="action-card">
+        <div class="action-card-header">
+          <div class="action-card-icon">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <div class="action-card-title">Manage Bills</div>
+          <i class="fa-solid fa-arrow-right" style="color: white; font-size: 1.25rem;"></i>
+        </div>
+        <div class="action-card-body">
+          Generate, view, and manage bills for multiple bilties. Track payment status and outstanding amounts.
+        </div>
+      </a>
+      
+      <a href="reports.php" class="action-card">
+        <div class="action-card-header">
+          <div class="action-card-icon">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <div class="action-card-title">Reports & Analytics</div>
+          <i class="fa-solid fa-arrow-right" style="color: white; font-size: 1.25rem;"></i>
+        </div>
+        <div class="action-card-body">
+          View detailed reports, analytics, and insights about your business performance and trends.
+        </div>
+      </a>
+    </div>
+
+    <!-- Quick Search Section -->
+    <div class="search-section">
+      <div class="search-header">
+        <div class="search-icon">
           <i class="fa-solid fa-magnifying-glass"></i>
-          Open Bilty
+        </div>
+        <h2 class="search-title">Quick Bilty Search</h2>
+      </div>
+      
+      <form class="search-form" action="" method="post" autocomplete="off">
+        <div class="search-input-group">
+          <label class="search-label">Bilty Number</label>
+          <input 
+            type="text" 
+            name="bilty_no" 
+            class="search-input" 
+            placeholder="Enter bilty number..." 
+            required 
+            value="<?php echo htmlspecialchars($bilty_no); ?>"
+          />
+        </div>
+        <button type="submit" class="search-btn">
+          <i class="fa-solid fa-search"></i>
+          Search Bilty
         </button>
       </form>
+      
       <?php
       if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($bilty_no !== '' && $bilty_row) {
-          echo '<div class="bilty-table-wrap" id="bilty-table-print"><table class="bilty-table">';
+          echo '<div class="result-section">';
+          echo '<h3 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 1.5rem 0; color: #111827;">Bilty Details</h3>';
+          echo '<div style="overflow-x: auto;">';
+          echo '<table class="result-table">';
           echo '<thead><tr>
             <th>Bilty No</th>
             <th>Date</th>
             <th>Company</th>
             <th>Vehicle No</th>
-            <th>Vehicle Type</th>
             <th>Driver</th>
-            <th>Sender Name</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Qty</th>
-            <th>KM</th>
-            <th>Rate</th>
+            <th>Route</th>
             <th>Amount</th>
             <th>Advance</th>
             <th>Balance</th>
-            <th>Details</th>
           </tr></thead><tbody>';
           echo '<tr>
-              <td>'.htmlspecialchars($bilty_row['bilty_no']).'</td>
+              <td><strong>'.htmlspecialchars($bilty_row['bilty_no']).'</strong></td>
               <td>'.htmlspecialchars($bilty_row['date']).'</td>
               <td>'.htmlspecialchars(getCompanyName($conn, $bilty_row['company_id'])).'</td>
               <td>'.htmlspecialchars($bilty_row['vehicle_no']).'</td>
-              <td>'.htmlspecialchars($bilty_row['vehicle_type']).'</td>
               <td>'.htmlspecialchars($bilty_row['driver_name']).'</td>
-              <td>'.htmlspecialchars($bilty_row['sender_name']).'</td>
-              <td>'.htmlspecialchars($bilty_row['from_city']).'</td>
-              <td>'.htmlspecialchars($bilty_row['to_city']).'</td>
-              <td>'.htmlspecialchars($bilty_row['qty']).'</td>
-              <td>'.htmlspecialchars($bilty_row['km']).'</td>
-              <td>'.htmlspecialchars($bilty_row['rate']).'</td>
-              <td>'.htmlspecialchars($bilty_row['amount']).'</td>
-              <td>'.htmlspecialchars($bilty_row['advance']).'</td>
-              <td>'.htmlspecialchars($bilty_row['balance']).'</td>
-              <td>'.nl2br(htmlspecialchars($bilty_row['details'])).'</td>
+              <td>'.htmlspecialchars($bilty_row['from_city']).' → '.htmlspecialchars($bilty_row['to_city']).'</td>
+              <td><strong>Rs. '.number_format($bilty_row['amount']).'</strong></td>
+              <td>Rs. '.number_format($bilty_row['advance']).'</td>
+              <td>Rs. '.number_format($bilty_row['balance']).'</td>
           </tr>';
-          echo '</tbody></table></div>';
-          // Print and Clear Buttons
-          echo '<div style="display:flex;gap:1rem;margin-top:1rem;">';
-          echo '<button type="button" class="print-btn" id="view_bilty_print" onclick="printBiltyExternal('.(int)$found_bilty_id.')">
-                  <i class="fa-solid fa-print"></i> Print
+          echo '</tbody></table>';
+          echo '</div>';
+          
+          echo '<div class="btn-group">';
+          echo '<button type="button" class="btn btn-primary" onclick="printBiltyExternal('.(int)$found_bilty_id.')">
+                  <i class="fa-solid fa-print"></i> Print Bilty
                 </button>';
-          echo '<button type="button" class="clear-search-btn" onclick="clearSearch()">
-                  <i class="fa-solid fa-xmark"></i> Clear Search
+          echo '<button type="button" class="btn btn-secondary" onclick="clearSearch()">
+                  <i class="fa-solid fa-times"></i> Clear Search
                 </button>';
           echo '</div>';
+          echo '</div>';
         } else {
-          echo '<div style="color:#97113a; font-weight:500; margin-top:1rem;">No bilty found for number <b>'.htmlspecialchars($bilty_no).'</b>.';
-          echo '<button type="button" class="clear-search-btn" onclick="clearSearch()" style="margin-left:1rem;">
-                  <i class="fa-solid fa-xmark"></i> Clear Search
+          echo '<div class="result-section">';
+          echo '<div class="no-result">';
+          echo '<div class="no-result-icon"><i class="fa-solid fa-search"></i></div>';
+          echo '<h3 style="font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem 0;">No bilty found</h3>';
+          echo '<p style="margin: 0 0 1rem 0;">No bilty record found for number <strong>'.htmlspecialchars($bilty_no).'</strong></p>';
+          echo '<button type="button" class="btn btn-secondary" onclick="clearSearch()">
+                  <i class="fa-solid fa-times"></i> Try Another Search
                 </button>';
+          echo '</div>';
           echo '</div>';
         }
       }
       ?>
+    </div>
 
-      <div class="main-actions">
-        <!-- Add New Bilty -->
-        <a href="add_bilty.php" class="action-btn" aria-label="Add New Bilty">
-          <span class="icon-chip">
-            <i class="fa-solid fa-truck-fast"></i>
-          </span>
-          <span>
-            Add New Bilty
-            <div style="font-weight:400;font-size:.95rem;opacity:.85;">Create a bilty quickly</div>
-          </span>
-          <span class="ml-auto">
-            <i class="fa-solid fa-arrow-right-long"></i>
-          </span>
-        </a>
-        <!-- View Bilties -->
-        <a href="view_bilty.php" class="action-btn" aria-label="View Bilties">
-          <span class="icon-chip">
-            <i class="fa-solid fa-rectangle-list"></i>
-          </span>
-          <span>
-            View Bilties
-            <div style="font-weight:400;font-size:.95rem;opacity:.85;">Browse all bilties</div>
-          </span>
-          <span class="ml-auto">
-            <i class="fa-solid fa-arrow-right-long"></i>
-          </span>
-        </a>
-      </div>
-    </section>
-    <div class="h-16"></div>
   </main>
 
-  <footer class="mt-auto py-6">
-    <div class="max-w-6xl mx-auto px-4 md:px-6">
-      <div class="footer-plate rounded-xl p-4 text-center text-sm text-gray-700">
-        <span class="inline-flex items-center gap-2">
-          <i class="fa-solid fa-code" style="color:#97113a"></i>
+  <footer style="background: white; border-top: 1px solid #e5e7eb; margin-top: 4rem; padding: 2rem 1rem;">
+    <div style="max-width: 1400px; margin: 0 auto; text-align: center; color: #6b7280; font-size: 0.875rem;">
+      <div style="display: inline-flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+        <span style="display: flex; align-items: center; gap: 0.5rem;">
+          <i class="fa-solid fa-code" style="color: var(--main-color);"></i>
           <span>Developed by <strong>Ali Abbas</strong></span>
-          <span class="text-gray-300">|</span>
-          <i class="fa-solid fa-phone" style="color:#97113a"></i>
-          <a class="hover:text-primary font-medium" href="tel:+923483469617" dir="ltr">+92 348 3469617</a>
         </span>
+        <span style="color: #d1d5db;">|</span>
+        <a href="tel:+923483469617" style="display: flex; align-items: center; gap: 0.5rem; color: var(--main-color); text-decoration: none; font-weight: 500;">
+          <i class="fa-solid fa-phone"></i>
+          <span>+92 348 3469617</span>
+        </a>
       </div>
     </div>
   </footer>

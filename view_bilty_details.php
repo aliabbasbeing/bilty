@@ -84,297 +84,450 @@ $edit_mode = isset($_GET['edit']) && $_GET['edit'] === 'true';
   <?php include 'head.php'; ?>
   <title>Bilty #<?php echo htmlspecialchars($bilty['bilty_no']); ?> — Bilty Management</title>
   <style>
-    /* print-friendly adjustments for the print preview page when opened */
+    :root {
+      --primary: #97113a;
+      --primary-hover: #b31547;
+    }
+    
+    body {
+      background: #f0f2f5;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .page-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+    
+    .page-header {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    
+    .page-title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #111827;
+      margin: 0 0 0.5rem 0;
+    }
+    
+    .page-subtitle {
+      color: #6b7280;
+      font-size: 0.95rem;
+      margin: 0;
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+    
+    .detail-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .card-section {
+      margin-bottom: 2rem;
+    }
+    
+    .card-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 1.5rem 0;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #f3f4f6;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #97113a15, #97113a25);
+      color: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    
+    .detail-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .detail-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+    }
+    
+    .badge-own {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .badge-rental {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+      color: white;
+      box-shadow: 0 4px 12px rgba(151, 17, 58, 0.3);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(151, 17, 58, 0.4);
+    }
+    
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+      border: 2px solid #e5e7eb;
+    }
+    
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+    
+    .financial-summary {
+      background: linear-gradient(135deg, #f9fafb, #ffffff);
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+    }
+    
+    .financial-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .financial-row:last-child {
+      border-bottom: none;
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+      border-top: 2px solid #e5e7eb;
+    }
+    
+    .financial-label {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: #6b7280;
+    }
+    
+    .financial-value {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #111827;
+    }
+    
+    .financial-row:last-child .financial-label,
+    .financial-row:last-child .financial-value {
+      color: var(--primary);
+      font-size: 1.25rem;
+    }
+    
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+    
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+    
     @media print {
-      body { background: #fff; color: #000; }
+      body { background: #fff; }
       .no-print { display: none !important; }
-      .print-box { box-shadow: none !important; border: none !important; }
+      .detail-card { box-shadow: none; }
+    }
+    
+    @media (max-width: 768px) {
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .header-actions {
+        width: 100%;
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
-<body class="bg-page min-h-screen text-gray-800">
+<body>
   <?php include 'header.php'; ?>
 
-  <main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+  <div class="page-container">
+    <!-- Success/Error Messages -->
     <?php if (isset($success_message)): ?>
-    <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-      <?php echo htmlspecialchars($success_message); ?>
-    </div>
+      <div class="alert alert-success">
+        <i class="fa-solid fa-check-circle" style="font-size: 1.25rem;"></i>
+        <div><?php echo htmlspecialchars($success_message); ?></div>
+      </div>
     <?php endif; ?>
     
     <?php if (isset($error_message)): ?>
-    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
-      <?php echo htmlspecialchars($error_message); ?>
-    </div>
+      <div class="alert alert-error">
+        <i class="fa-solid fa-exclamation-circle" style="font-size: 1.25rem;"></i>
+        <div><?php echo htmlspecialchars($error_message); ?></div>
+      </div>
     <?php endif; ?>
 
-    <div class="bg-white rounded-2xl shadow-lg p-6 print-box">
-      <div class="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <h1 class="text-2xl font-bold text-primary">
-            <?php if ($edit_mode): ?>
-              Edit Bilty #<?php echo htmlspecialchars($bilty['bilty_no']); ?>
-            <?php else: ?>
-              Bilty #<?php echo htmlspecialchars($bilty['bilty_no']); ?>
-            <?php endif; ?>
-          </h1>
-          <p class="text-sm text-gray-600"><?php echo htmlspecialchars($bilty['company_name'] ?? ''); ?> — <?php echo htmlspecialchars($bilty['date']); ?></p>
-        </div>
-        <div class="flex items-center gap-2 no-print">
-          <a href="view_bilty.php" class="px-3 py-2 rounded-md border bg-white hover:bg-gray-50">Back</a>
-          
-          <?php if ($edit_mode): ?>
-            <button type="button" onclick="window.location.href='?id=<?php echo $id; ?>'" class="px-3 py-2 rounded-md border bg-white">Cancel</button>
-          <?php else: ?>
-            <button type="button" onclick="window.location.href='?id=<?php echo $id; ?>&edit=true'" class="px-3 py-2 rounded-md bg-primary text-white">Edit</button>
-            <button id="printBtn" class="px-3 py-2 rounded-md border bg-white">Print</button>
-          <?php endif; ?>
+    <!-- Page Header -->
+    <div class="page-header no-print">
+      <div>
+        <h1 class="page-title">
+          <i class="fa-solid fa-file-lines" style="color: var(--primary);"></i>
+          Bilty #<?php echo htmlspecialchars($bilty['bilty_no']); ?>
+        </h1>
+        <p class="page-subtitle">
+          <?php echo htmlspecialchars($bilty['company_name'] ?? ''); ?> — 
+          <?php echo htmlspecialchars(date('d M Y', strtotime($bilty['date']))); ?>
+        </p>
+      </div>
+      <div class="header-actions">
+        <a href="view_bilty.php" class="btn btn-secondary">
+          <i class="fa-solid fa-arrow-left"></i>
+          Back to List
+        </a>
+        <a href="view_bilty_print.php?id=<?php echo $id; ?>" target="_blank" class="btn btn-primary">
+          <i class="fa-solid fa-print"></i>
+          Print Bilty
+        </a>
+      </div>
+    </div>
+
+    <!-- Bilty Details Card -->
+    <div class="detail-card">
+      <!-- Company Information -->
+      <div class="card-section">
+        <h2 class="section-title">
+          <div class="section-icon">
+            <i class="fa-solid fa-building"></i>
+          </div>
+          Company Information
+        </h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Company Name</div>
+            <div class="detail-value"><?php echo htmlspecialchars($bilty['company_name'] ?? ''); ?></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Sender Name</div>
+            <div class="detail-value"><?php echo htmlspecialchars($bilty['sender_name'] ?: '—'); ?></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Bilty Number</div>
+            <div class="detail-value"><?php echo htmlspecialchars($bilty['bilty_no']); ?></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Date</div>
+            <div class="detail-value"><?php echo htmlspecialchars(date('d M Y', strtotime($bilty['date']))); ?></div>
+          </div>
         </div>
       </div>
 
-      <?php if ($edit_mode): ?>
-        <!-- Edit Form -->
-        <form method="post" action="" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-4">
-              <!-- Company -->
-              <div>
-                <label for="company_id" class="block text-sm font-medium text-gray-700">Company</label>
-                <select id="company_id" name="company_id" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-                  <?php foreach ($companies as $company): ?>
-                    <option value="<?php echo $company['id']; ?>" <?php if ($company['id'] == $bilty['company_id']) echo 'selected'; ?>>
-                      <?php echo htmlspecialchars($company['name']); ?>
-                    </option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              
-              <!-- Bilty No -->
-              <div>
-                <label for="bilty_no" class="block text-sm font-medium text-gray-700">Bilty Number</label>
-                <input type="text" name="bilty_no" id="bilty_no" value="<?php echo htmlspecialchars($bilty['bilty_no']); ?>" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- Date -->
-              <div>
-                <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
-                <input type="date" name="date" id="date" value="<?php echo htmlspecialchars($bilty['date']); ?>" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- From City -->
-              <div>
-                <label for="from_city" class="block text-sm font-medium text-gray-700">From City</label>
-                <input type="text" name="from_city" id="from_city" value="<?php echo htmlspecialchars($bilty['from_city']); ?>" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- To City -->
-              <div>
-                <label for="to_city" class="block text-sm font-medium text-gray-700">To City</label>
-                <input type="text" name="to_city" id="to_city" value="<?php echo htmlspecialchars($bilty['to_city']); ?>" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- Vehicle Number -->
-              <div>
-                <label for="vehicle_no" class="block text-sm font-medium text-gray-700">Vehicle Number</label>
-                <input type="text" name="vehicle_no" id="vehicle_no" value="<?php echo htmlspecialchars($bilty['vehicle_no']); ?>" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- Vehicle Type -->
-              <div>
-                <label for="vehicle_type" class="block text-sm font-medium text-gray-700">Vehicle Type</label>
-                <input type="text" name="vehicle_type" id="vehicle_type" value="<?php echo htmlspecialchars($bilty['vehicle_type']); ?>" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- Vehicle Ownership -->
-              <div>
-                <label for="vehicle_owner" class="block text-sm font-medium text-gray-700">Vehicle Ownership</label>
-                <select id="vehicle_owner" name="vehicle_owner" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-                  <option value="">-- Select Ownership --</option>
-                  <option value="Own" <?php if ($owner === 'Own') echo 'selected'; ?>>Own</option>
-                  <option value="Rental" <?php if ($owner === 'Rental') echo 'selected'; ?>>Rental</option>
-                </select>
-              </div>
-            </div>
-            
-            <div class="space-y-4">
-              <!-- Driver Name -->
-              <div>
-                <label for="driver_name" class="block text-sm font-medium text-gray-700">Driver Name</label>
-                <input type="text" name="driver_name" id="driver_name" value="<?php echo htmlspecialchars($bilty['driver_name']); ?>" required class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- Driver Number -->
-              <div>
-                <label for="driver_number" class="block text-sm font-medium text-gray-700">Driver Number</label>
-                <input type="text" name="driver_number" id="driver_number" value="<?php echo htmlspecialchars($driver_number); ?>" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- Sender Name -->
-              <div>
-                <label for="sender_name" class="block text-sm font-medium text-gray-700">Sender Name</label>
-                <input type="text" name="sender_name" id="sender_name" value="<?php echo htmlspecialchars($bilty['sender_name']); ?>" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- Quantity -->
-              <div>
-                <label for="qty" class="block text-sm font-medium text-gray-700">Quantity</label>
-                <input type="number" name="qty" id="qty" value="<?php echo htmlspecialchars($bilty['qty']); ?>" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- KM -->
-              <div>
-                <label for="km" class="block text-sm font-medium text-gray-700">Distance (KM)</label>
-                <input type="number" step="0.01" name="km" id="km" value="<?php echo htmlspecialchars($bilty['km']); ?>" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" onchange="calculateAmount()">
-              </div>
-              
-              <!-- Rate -->
-              <div>
-                <label for="rate" class="block text-sm font-medium text-gray-700">Rate (per KM)</label>
-                <input type="number" step="0.01" name="rate" id="rate" value="<?php echo htmlspecialchars($bilty['rate']); ?>" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" onchange="calculateAmount()">
-              </div>
-              
-              <!-- Amount -->
-              <div>
-                <label for="amount" class="block text-sm font-medium text-gray-700">Amount</label>
-                <input type="number" step="0.01" name="amount" id="amount" value="<?php echo htmlspecialchars($bilty['amount']); ?>" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-              
-              <!-- Advance -->
-              <div>
-                <label for="advance" class="block text-sm font-medium text-gray-700">Advance</label>
-                <input type="number" step="0.01" name="advance" id="advance" value="<?php echo htmlspecialchars($bilty['advance']); ?>" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" onchange="calculateBalance()">
-              </div>
-              
-              <!-- Balance -->
-              <div>
-                <label for="balance" class="block text-sm font-medium text-gray-700">Balance</label>
-                <input type="number" step="0.01" name="balance" id="balance" value="<?php echo htmlspecialchars($bilty['balance']); ?>" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm">
-              </div>
-            </div>
+      <!-- Shipment Details -->
+      <div class="card-section">
+        <h2 class="section-title">
+          <div class="section-icon">
+            <i class="fa-solid fa-route"></i>
           </div>
-          
-          <!-- Notes -->
-          <div>
-            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
-            <textarea name="notes" id="notes" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"><?php echo htmlspecialchars($notes); ?></textarea>
+          Shipment Details
+        </h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">From City</div>
+            <div class="detail-value"><?php echo htmlspecialchars($bilty['from_city'] ?: '—'); ?></div>
           </div>
-          
-          <div class="flex justify-end gap-2">
-            <a href="?id=<?php echo $id; ?>" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-gray-700 bg-gray-200 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-              Cancel
-            </a>
-            <button type="submit" name="update_bilty" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
-              Save Changes
-            </button>
+          <div class="detail-item">
+            <div class="detail-label">To City</div>
+            <div class="detail-value"><?php echo htmlspecialchars($bilty['to_city'] ?: '—'); ?></div>
           </div>
-        </form>
-      <?php else: ?>
-        <!-- View Mode -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="space-y-3">
-            <div>
-              <div class="text-xs text-gray-500">Route</div>
-              <div class="font-medium text-gray-800"><?php echo htmlspecialchars($bilty['from_city'] ?? ''); ?> → <?php echo htmlspecialchars($bilty['to_city'] ?? ''); ?></div>
-            </div>
-
-            <div>
-              <div class="text-xs text-gray-500">Vehicle</div>
-              <div class="font-medium text-gray-800"><?php echo htmlspecialchars($bilty['vehicle_no'] ?? ''); ?></div>
-              <?php if (!empty($bilty['vehicle_type'])): ?><div class="text-xs text-gray-500 mt-1"><?php echo htmlspecialchars($bilty['vehicle_type']); ?></div><?php endif; ?>
-              <div class="mt-2">
-                <span class="text-xs text-gray-500">Ownership</span>
-                <?php if ($owner === 'Rental'): ?>
-                  <div class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800">Rental</div>
-                <?php elseif ($owner === 'Own'): ?>
-                  <div class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-800">Own</div>
-                <?php else: ?>
-                  <div class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700">—</div>
-                <?php endif; ?>
-              </div>
-            </div>
-
-            <div>
-              <div class="text-xs text-gray-500">Driver</div>
-              <div class="font-medium text-gray-800"><?php echo htmlspecialchars($bilty['driver_name'] ?? ''); ?></div>
-              <?php if ($driver_number): ?><div class="text-xs text-gray-500 mt-1"><?php echo htmlspecialchars($driver_number); ?></div><?php endif; ?>
-            </div>
-
-            <div>
-              <div class="text-xs text-gray-500">Sender</div>
-              <div class="font-medium text-gray-800"><?php echo htmlspecialchars($bilty['sender_name'] ?? ''); ?></div>
-            </div>
+          <div class="detail-item">
+            <div class="detail-label">Quantity</div>
+            <div class="detail-value"><?php echo htmlspecialchars($bilty['qty'] ?: '—'); ?></div>
           </div>
-
-          <div class="space-y-3">
-            <div>
-              <div class="text-xs text-gray-500">Quantity</div>
-              <div class="font-medium text-gray-800"><?php echo htmlspecialchars($bilty['qty'] ?? 0); ?></div>
-            </div>
-
-            <div>
-              <div class="text-xs text-gray-500">Distance (KM)</div>
-              <div class="font-medium text-gray-800"><?php echo htmlspecialchars($bilty['km'] ?? 0); ?></div>
-            </div>
-
-            <div>
-              <div class="text-xs text-gray-500">Rate (per KM)</div>
-              <div class="font-medium text-gray-800"><?php echo number_format((float)($bilty['rate'] ?? 0), 2); ?></div>
-            </div>
-
-            <div>
-              <div class="text-xs text-gray-500">Amount</div>
-              <div class="text-lg font-bold text-gray-900"><?php echo number_format((float)($bilty['amount'] ?? 0), 2); ?></div>
-              <div class="text-sm text-gray-600 mt-1">Advance: <?php echo number_format((float)($bilty['advance'] ?? 0), 2); ?> • Balance: <span class="text-red-600"><?php echo number_format((float)($bilty['balance'] ?? 0), 2); ?></span></div>
-            </div>
+          <div class="detail-item">
+            <div class="detail-label">Distance (KM)</div>
+            <div class="detail-value"><?php echo number_format($bilty['km'], 2); ?></div>
           </div>
         </div>
+      </div>
 
-        <?php if (!empty($notes)): ?>
-          <div class="mt-6">
-            <div class="text-xs text-gray-500">Notes</div>
-            <div class="mt-2 whitespace-pre-line text-gray-700"><?php echo htmlspecialchars($notes); ?></div>
+      <!-- Vehicle & Driver Information -->
+      <div class="card-section">
+        <h2 class="section-title">
+          <div class="section-icon">
+            <i class="fa-solid fa-truck"></i>
           </div>
-        <?php endif; ?>
-
-        <div class="mt-6 flex justify-end gap-2 no-print">
-          <a href="view_bilty.php" class="px-4 py-2 rounded-md border bg-white">Close</a>
-          <a href="?id=<?php echo $id; ?>&edit=true" class="px-4 py-2 rounded-md bg-primary text-white">Edit Bilty</a>
-          <button id="printBtn2" class="px-4 py-2 rounded-md border bg-white">Print (Template)</button>
+          Vehicle & Driver Information
+        </h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <div class="detail-label">Vehicle Number</div>
+            <div class="detail-value"><?php echo htmlspecialchars($bilty['vehicle_no'] ?: '—'); ?></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Vehicle Type</div>
+            <div class="detail-value"><?php echo htmlspecialchars($bilty['vehicle_type'] ?: '—'); ?></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Vehicle Ownership</div>
+            <div class="detail-value">
+              <?php if ($owner === 'Rental'): ?>
+                <span class="badge badge-rental">Rental</span>
+              <?php elseif ($owner === 'Own'): ?>
+                <span class="badge badge-own">Own</span>
+              <?php else: ?>
+                —
+              <?php endif; ?>
+            </div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Driver Name</div>
+            <div class="detail-value"><?php echo htmlspecialchars($bilty['driver_name'] ?: '—'); ?></div>
+          </div>
+          <div class="detail-item">
+            <div class="detail-label">Driver Phone</div>
+            <div class="detail-value"><?php echo htmlspecialchars($driver_number ?: '—'); ?></div>
+          </div>
         </div>
+      </div>
+
+      <!-- Financial Details -->
+      <div class="card-section">
+        <h2 class="section-title">
+          <div class="section-icon">
+            <i class="fa-solid fa-dollar-sign"></i>
+          </div>
+          Financial Details
+        </h2>
+        <div class="financial-summary">
+          <div class="financial-row">
+            <div class="financial-label">Rate (per KM)</div>
+            <div class="financial-value">Rs. <?php echo number_format($bilty['rate'], 2); ?></div>
+          </div>
+          <div class="financial-row">
+            <div class="financial-label">Total Amount</div>
+            <div class="financial-value">Rs. <?php echo number_format($bilty['amount'], 2); ?></div>
+          </div>
+          <div class="financial-row">
+            <div class="financial-label">Advance Paid</div>
+            <div class="financial-value">Rs. <?php echo number_format($bilty['advance'], 2); ?></div>
+          </div>
+          <div class="financial-row">
+            <div class="financial-label">Balance Due</div>
+            <div class="financial-value">Rs. <?php echo number_format($bilty['balance'], 2); ?></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Notes -->
+      <?php if ($notes): ?>
+      <div class="card-section">
+        <h2 class="section-title">
+          <div class="section-icon">
+            <i class="fa-solid fa-note-sticky"></i>
+          </div>
+          Additional Notes
+        </h2>
+        <div style="background: #f9fafb; border-radius: 10px; padding: 1rem; color: #374151; white-space: pre-wrap;">
+          <?php echo htmlspecialchars($notes); ?>
+        </div>
+      </div>
       <?php endif; ?>
     </div>
-  </main>
-
-  <script>
-    // Calculate amount based on KM and rate
-    function calculateAmount() {
-      const km = parseFloat(document.getElementById('km').value) || 0;
-      const rate = parseFloat(document.getElementById('rate').value) || 0;
-      const amount = km * rate;
-      document.getElementById('amount').value = amount.toFixed(2);
-      calculateBalance();
-    }
-    
-    // Calculate balance based on amount and advance
-    function calculateBalance() {
-      const amount = parseFloat(document.getElementById('amount').value) || 0;
-      const advance = parseFloat(document.getElementById('advance').value) || 0;
-      const balance = amount - advance;
-      document.getElementById('balance').value = balance.toFixed(2);
-    }
-    
-    // Open printable template in a new window
-    document.getElementById('printBtn')?.addEventListener('click', function(){
-      const url = 'view_bilty_print.php?id=<?php echo urlencode($bilty['id']); ?>';
-      const w = window.open(url, '_blank', 'noopener');
-      if (w) w.focus();
-    });
-    
-    document.getElementById('printBtn2')?.addEventListener('click', function(){
-      const url = 'view_bilty_print.php?id=<?php echo urlencode($bilty['id']); ?>&template=1';
-      const w = window.open(url, '_blank', 'noopener');
-      if (w) w.focus();
-    });
-  </script>
+  </div>
 </body>
 </html>
+               

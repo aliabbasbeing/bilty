@@ -65,11 +65,11 @@ $total_pages   = ceil(count($bilties) / $rows_per_page);
 <!-- <script src="https://cdn.tailwindcss.com"></script> -->
 <script src="pdf.js"></script>
 <style>
-@page { size: A4; margin: 12mm; }
+@page { size: A4; margin: 1mm; }
 
 :root{
   --page-width: calc(210mm - 24mm);
-  --page-padding: 8mm;
+  --page-padding: 1mm;
   --font-base: "Arial","Helvetica",sans-serif;
   --font-size: 11px;
   --hairline: 0.6px;
