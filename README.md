@@ -1,66 +1,117 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bilty Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive Laravel-based transport operations platform for managing consignments (bilties), billing, vehicle maintenance, payments, and reports.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Dashboard**: KPI cards showing total consignments, revenue, pending balance, and monthly statistics
+- **Consignment Management**: Create and manage bilties with auto-numbering, fixed/per-km rates, and balance tracking
+- **Company Management**: CRUD operations for companies with case-insensitive unique name constraint
+- **Bill Management**: Multi-consignment billing with tax calculations and payment tracking
+- **Vehicle Maintenance**: Track maintenance records with filterable listings
+- **Payment Tracking**: Log payments and automatically update consignment balances
+- **PDF Generation**: Export bilties and bills as printable PDFs
+- **Reporting**: Date-range reports with filters and CSV export
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Backend**: Laravel 10.x, PHP 8.1+
+- **Database**: MySQL/MariaDB (utf8mb4)
+- **Frontend**: Bootstrap 5 + Font Awesome
+- **PDF**: Laravel DOMPDF (barryvdh/laravel-dompdf)
 
-## Learning Laravel
+## Installation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Prerequisites
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- PHP 8.1 or higher
+- Composer
+- MySQL 5.7+ or MariaDB
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Setup Steps
 
-## Laravel Sponsors
+1. Install PHP dependencies:
+   ```bash
+   composer install
+   ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+2. Create environment file:
+   ```bash
+   cp .env.example .env
+   ```
 
-### Premium Partners
+3. Configure database in `.env`:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=bilty_db
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+4. Generate application key:
+   ```bash
+   php artisan key:generate
+   ```
 
-## Contributing
+5. Create database:
+   ```bash
+   mysql -u root -p
+   CREATE DATABASE bilty_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   EXIT;
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+6. Run migrations:
+   ```bash
+   php artisan migrate
+   ```
 
-## Code of Conduct
+7. Create storage symlink:
+   ```bash
+   php artisan storage:link
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+8. Start development server:
+   ```bash
+   php artisan serve
+   ```
 
-## Security Vulnerabilities
+9. Visit `http://localhost:8000` in your browser
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Database Schema
 
-## License
+### Companies Table
+- id, name (unique, case-insensitive), address, timestamps
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Consignments Table
+- id, company_id, bilty_no (unique), date, vehicle details, shipment info
+- Financial fields: km, rate, rate_type (Fixed/PerKM), amount, advance, balance
+- pdf_path, timestamps
+
+### Bills Table
+- id, bill_no (unique), financial_year, issue_date, company_id
+- consignment_ids (JSON array), gross_amount, tax_percent (default 4%), tax_amount, net_amount
+- meta (JSON), status (DRAFT/FINAL), payment_status (UNPAID/PAID)
+- payment_date, payment_note, pdf_path, timestamps
+
+### Vehicle Maintenance Table
+- id, entry_date, vehicle_no, expense_type, amount, narration, timestamps
+
+### Payments Table
+- id, consignment_id, payment_date, amount, method, timestamps
+
+## Business Rules
+
+- **Bilty Numbering**: Auto-generated based on MAX(id) + 1
+- **Rate Types**: 
+  - Fixed: Amount is manually entered
+  - PerKM: Amount = km × rate
+- **Balance Calculation**: balance = amount - advance
+- **Tax**: Default 4% but editable per bill
+- **Multi-Consignment Billing**: Select multiple consignments by IDs for a single bill
+
+## Support
+
+Developed by **Ali Abbas**  
+Contact: +92 348 3469617
