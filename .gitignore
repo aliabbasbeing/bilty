@@ -1,33 +1,40 @@
-# Bilty Management - Files to ignore
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.vscode
+
+# Legacy PHP files (reference only)
+/_legacy
+
+# Generated PDFs
+/public/bilty_pdfs/*.pdf
+/storage/bilty_pdfs/*.pdf
 
 # Database dumps
 *.sql
 *.sqlite
 
-# Uploaded files / Generated PDFs (if you want to exclude them)
-bilty_pdfs/*.pdf
-
-# System files
-.DS_Store
-Thumbs.db
-*.log
-
 # Temporary files
-tmp/
-temp/
+/tmp
+/temp
 *.tmp
-
-# IDE / Editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Environment files
-.env
-.env.local
 
 # Backup files
 *.bak
 *.backup
+*.zip
