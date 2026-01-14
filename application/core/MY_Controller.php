@@ -1,10 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-/* Load MX core files */
-require_once APPPATH . 'third_party/MX/Modules.php';
-require_once APPPATH . 'third_party/MX/Controller.php';
-
 /**
  * MY_Controller - Base Controller for Session Management
  * 
