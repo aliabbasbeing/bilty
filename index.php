@@ -307,6 +307,16 @@ switch (ENVIRONMENT)
 
 /*
  * --------------------------------------------------------------------
+ * LOAD MODULAR EXTENSIONS (HMVC)
+ * --------------------------------------------------------------------
+ *
+ * Load the MX core files before CodeIgniter bootstrap
+ */
+require_once APPPATH.'third_party/HMVC/Modules.php';
+require_once APPPATH.'third_party/HMVC/Controller.php';
+
+/*
+ * --------------------------------------------------------------------
  * LOAD THE BOOTSTRAP FILE
  * --------------------------------------------------------------------
  *
