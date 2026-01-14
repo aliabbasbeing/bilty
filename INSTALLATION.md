@@ -253,6 +253,27 @@ chmod -R 755 application/logs
 2. Verify assets folder permissions
 3. Check browser console for 404 errors
 
+### Issue: PHP 8.2 Deprecation Warnings
+
+**Symptoms:**
+```
+Creation of dynamic property CI_URI::$config is deprecated
+Creation of dynamic property MY_Router::$uri is deprecated
+```
+
+**Solution:**
+These are harmless warnings from CodeIgniter 3's core files on PHP 8.2+. To suppress them:
+
+1. Edit `index.php` and add after line 1:
+   ```php
+   <?php
+   error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+   ```
+
+2. Or upgrade to PHP 8.1 or lower for production use.
+
+These warnings don't affect functionality and will be fixed in CodeIgniter 4.
+
 ## Production Deployment
 
 ### 1. Security Checklist

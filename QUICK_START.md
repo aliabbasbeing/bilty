@@ -97,6 +97,16 @@ define('ENVIRONMENT', 'development');
 ### CSS/JS not loading
 **Fix:** Check base_url in `config/config.php`
 
+### PHP 8.2 Deprecation Warnings
+**Symptoms:** "Creation of dynamic property..." warnings
+
+**Fix:** Add to top of `index.php`:
+```php
+<?php
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_STRICT);
+```
+These warnings are harmless and don't affect functionality.
+
 ## 📂 Project Structure
 
 ```
