@@ -32,7 +32,7 @@
 if (!defined("BASEPATH"))
     exit("No direct script access allowed");
 
-class HMVC_Loader extends CI_Loader {
+class MX_Loader extends CI_Loader {
 
     /**
      * List of loaded modules
