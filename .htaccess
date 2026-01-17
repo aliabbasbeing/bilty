@@ -1,0 +1,13 @@
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+
+# Prevent directory browsing
+Options -Indexes
+
+# Prevent access to sensitive files
+<FilesMatch "^(\.htaccess|\.gitignore|composer\.json|composer\.lock|config\.php)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

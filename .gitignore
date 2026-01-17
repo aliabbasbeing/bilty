@@ -16,6 +16,9 @@ Thumbs.db
 tmp/
 temp/
 *.tmp
+codeigniter3_temp/
+codeigniter-hmvc-modules-master/
+*.tar.gz
 
 # IDE / Editor files
 .vscode/
@@ -31,3 +34,7 @@ temp/
 # Backup files
 *.bak
 *.backup
+
+# Old backup files
+old_*.php
+old*.zip

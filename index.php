@@ -1,665 +1,315 @@
 <?php
-require_once 'config.php';
+/**
+ * CodeIgniter
+ *
+ * An open source application development framework for PHP
+ *
+ * This content is released under the MIT License (MIT)
+ *
+ * Copyright (c) 2014 - 2019, British Columbia Institute of Technology
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * @package	CodeIgniter
+ * @author	EllisLab Dev Team
+ * @copyright	Copyright (c) 2008 - 2014, EllisLab, Inc. (https://ellislab.com/)
+ * @copyright	Copyright (c) 2014 - 2019, British Columbia Institute of Technology (https://bcit.ca/)
+ * @license	https://opensource.org/licenses/MIT	MIT License
+ * @link	https://codeigniter.com
+ * @since	Version 1.0.0
+ * @filesource
+ */
 
-function getCompanyName($conn, $company_id) {
-    $stmt = $conn->prepare("SELECT name FROM companies WHERE id = ?");
-    $stmt->bind_param("i", $company_id);
-    $stmt->execute();
-    $stmt->bind_result($name);
-    $stmt->fetch();
-    $stmt->close();
-    return $name ? $name : $company_id;
+/*
+ *---------------------------------------------------------------
+ * APPLICATION ENVIRONMENT
+ *---------------------------------------------------------------
+ *
+ * You can load different configurations depending on your
+ * current environment. Setting the environment also influences
+ * things like logging and error reporting.
+ *
+ * This can be set to anything, but default usage is:
+ *
+ *     development
+ *     testing
+ *     production
+ *
+ * NOTE: If you change these, also change the error_reporting() code below
+ */
+	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+
+/*
+ *---------------------------------------------------------------
+ * ERROR REPORTING
+ *---------------------------------------------------------------
+ *
+ * Different environments will require different levels of error reporting.
+ * By default development will show errors but testing and live will hide them.
+ */
+switch (ENVIRONMENT)
+{
+	case 'development':
+		error_reporting(-1);
+		ini_set('display_errors', 1);
+	break;
+
+	case 'testing':
+	case 'production':
+		ini_set('display_errors', 0);
+		if (version_compare(PHP_VERSION, '5.3', '>='))
+		{
+			error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_DEPRECATED);
+		}
+		else
+		{
+			error_reporting(E_ALL & ~E_NOTICE & ~E_STRICT & ~E_USER_NOTICE);
+		}
+	break;
+
+	default:
+		header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
+		echo 'The application environment is not set correctly.';
+		exit(1); // EXIT_ERROR
 }
 
-$bilty_no = '';
-$found_bilty_id = null;
-$bilty_row = null;
+/*
+ *---------------------------------------------------------------
+ * SYSTEM DIRECTORY NAME
+ *---------------------------------------------------------------
+ *
+ * This variable must contain the name of your "system" directory.
+ * Set the path if it is not in the same directory as this file.
+ */
+	$system_path = 'system';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $bilty_no = trim($_POST['bilty_no'] ?? '');
-    if ($bilty_no !== '') {
-        $sql = "SELECT * FROM consignments WHERE bilty_no = ? LIMIT 1";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $bilty_no);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        if ($result->num_rows > 0) {
-            $bilty_row = $result->fetch_assoc();
-            $found_bilty_id = $bilty_row['id'];
-        }
-        $stmt->close();
-    }
-}
-?>
-<!doctype html>
-<html lang="en">
-<head>
-  <?php include 'head.php'; ?>
-  <title>🚚 Bilty Management Dashboard</title>
-  <style>
-    :root {
-      --main-color: #97113a;
-      --main-color-hover: #b31547;
-      --main-color-light: #fff0f5;
-      --gradient-primary: linear-gradient(135deg, #97113a 0%, #c91f4f 100%);
-      --gradient-card: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    }
-    
-    body {
-      background: #f0f2f5;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    
-    .dashboard-hero {
-      background: var(--gradient-primary);
-      border-radius: 20px;
-      padding: 3rem 2rem;
-      color: white;
-      margin-bottom: 2rem;
-      box-shadow: 0 10px 30px rgba(151, 17, 58, 0.3);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .dashboard-hero::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -10%;
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      border-radius: 50%;
-    }
-    
-    .hero-content {
-      position: relative;
-      z-index: 1;
-    }
-    
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    
-    .stat-card {
-      background: white;
-      border-radius: 16px;
-      padding: 1.75rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .stat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    }
-    
-    .stat-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    
-    .stat-icon.primary {
-      background: linear-gradient(135deg, #97113a15, #97113a25);
-      color: var(--main-color);
-    }
-    
-    .stat-icon.success {
-      background: linear-gradient(135deg, #10b98115, #10b98125);
-      color: #10b981;
-    }
-    
-    .stat-icon.info {
-      background: linear-gradient(135deg, #3b82f615, #3b82f625);
-      color: #3b82f6;
-    }
-    
-    .stat-icon.warning {
-      background: linear-gradient(135deg, #f59e0b15, #f59e0b25);
-      color: #f59e0b;
-    }
-    
-    .stat-label {
-      color: #6b7280;
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #111827;
-      line-height: 1;
-    }
-    
-    .quick-actions {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    
-    .action-card {
-      background: white;
-      border-radius: 16px;
-      padding: 0;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      overflow: hidden;
-      text-decoration: none;
-      transition: transform 0.2s, box-shadow 0.2s;
-      border: 1px solid rgba(0,0,0,0.05);
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .action-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    }
-    
-    .action-card-header {
-      background: var(--gradient-primary);
-      padding: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    
-    .action-card-icon {
-      width: 48px;
-      height: 48px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      color: white;
-    }
-    
-    .action-card-title {
-      color: white;
-      font-size: 1.25rem;
-      font-weight: 700;
-      flex: 1;
-    }
-    
-    .action-card-body {
-      padding: 1.5rem;
-      color: #6b7280;
-      font-size: 0.95rem;
-      flex: 1;
-    }
-    
-    .search-section {
-      background: white;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-bottom: 2rem;
-      border: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .search-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .search-icon {
-      width: 40px;
-      height: 40px;
-      background: var(--main-color-light);
-      color: var(--main-color);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-    }
-    
-    .search-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #111827;
-    }
-    
-    .search-form {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-    
-    .search-input-group {
-      flex: 1;
-      min-width: 250px;
-    }
-    
-    .search-label {
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 0.5rem;
-    }
-    
-    .search-input {
-      width: 100%;
-      padding: 0.875rem 1rem;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 1rem;
-      transition: all 0.2s;
-    }
-    
-    .search-input:focus {
-      outline: none;
-      border-color: var(--main-color);
-      box-shadow: 0 0 0 3px rgba(151, 17, 58, 0.1);
-    }
-    
-    .search-btn {
-      background: var(--gradient-primary);
-      color: white;
-      border: none;
-      padding: 0.875rem 2rem;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      box-shadow: 0 4px 12px rgba(151, 17, 58, 0.3);
-    }
-    
-    .search-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px rgba(151, 17, 58, 0.4);
-    }
-    
-    .result-section {
-      background: white;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      margin-top: 1.5rem;
-      border: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .result-table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      overflow: hidden;
-    }
-    
-    .result-table th {
-      background: #f9fafb;
-      padding: 1rem;
-      text-align: left;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #374151;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 2px solid #e5e7eb;
-    }
-    
-    .result-table td {
-      padding: 1rem;
-      border-bottom: 1px solid #f3f4f6;
-      color: #111827;
-    }
-    
-    .result-table tbody tr:hover {
-      background: #f9fafb;
-    }
-    
-    .btn-group {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 1.5rem;
-    }
-    
-    .btn {
-      padding: 0.75rem 1.5rem;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      border: none;
-    }
-    
-    .btn-primary {
-      background: var(--gradient-primary);
-      color: white;
-      box-shadow: 0 2px 8px rgba(151, 17, 58, 0.2);
-    }
-    
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(151, 17, 58, 0.3);
-    }
-    
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #374151;
-    }
-    
-    .btn-secondary:hover {
-      background: #e5e7eb;
-    }
-    
-    .no-result {
-      text-align: center;
-      padding: 3rem;
-      color: #6b7280;
-    }
-    
-    .no-result-icon {
-      font-size: 3rem;
-      color: #d1d5db;
-      margin-bottom: 1rem;
-    }
-    
-    @media (max-width: 768px) {
-      .dashboard-hero {
-        padding: 2rem 1.5rem;
-      }
-      
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .quick-actions {
-        grid-template-columns: 1fr;
-      }
-      
-      .search-form {
-        flex-direction: column;
-      }
-      
-      .search-input-group {
-        width: 100%;
-      }
-      
-      .search-btn {
-        width: 100%;
-        justify-content: center;
-      }
-      
-      .result-table {
-        font-size: 0.875rem;
-      }
-      
-      .result-table th,
-      .result-table td {
-        padding: 0.75rem 0.5rem;
-      }
-    }
-  </style>
-  <script>
-    function printBiltyExternal(biltyId) {
-      if (!biltyId) return;
-      window.open('view_bilty_print.php?id=' + biltyId, '_blank');
-    }
-    function clearSearch() {
-      window.location.href = window.location.pathname;
-    }
-  </script>
-</head>
-<body style="background: #f0f2f5;">
-  <?php include 'header.php'; ?>
+/*
+ *---------------------------------------------------------------
+ * APPLICATION DIRECTORY NAME
+ *---------------------------------------------------------------
+ *
+ * If you want this front controller to use a different "application"
+ * directory than the default one you can set its name here. The directory
+ * can also be renamed or relocated anywhere on your server. If you do,
+ * use an absolute (full) server path.
+ * For more info please see the user guide:
+ *
+ * https://codeigniter.com/userguide3/general/managing_apps.html
+ *
+ * NO TRAILING SLASH!
+ */
+	$application_folder = 'application';
 
-  <main class="container" style="max-width: 1400px; margin: 0 auto; padding: 2rem 1rem;">
-    
-    <!-- Hero Section -->
-    <div class="dashboard-hero">
-      <div class="hero-content">
-        <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 0.5rem 0;">
-          Bilty Management System
-        </h1>
-        <p style="font-size: 1.125rem; opacity: 0.95; margin: 0;">
-          Welcome back! Manage your bilties, track shipments, and generate reports efficiently.
-        </p>
-      </div>
-    </div>
+/*
+ *---------------------------------------------------------------
+ * VIEW DIRECTORY NAME
+ *---------------------------------------------------------------
+ *
+ * If you want to move the view directory out of the application
+ * directory, set the path to it here. The directory can be renamed
+ * and relocated anywhere on your server. If blank, it will default
+ * to the standard location inside your application directory.
+ * If you do move this, use an absolute (full) server path.
+ *
+ * NO TRAILING SLASH!
+ */
+	$view_folder = '';
 
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon primary">
-          <i class="fa-solid fa-file-invoice"></i>
-        </div>
-        <div class="stat-label">Total Bilties</div>
-        <div class="stat-value">
-          <?php
-          $count_result = $conn->query("SELECT COUNT(*) as total FROM consignments");
-          $total_count = $count_result ? $count_result->fetch_assoc()['total'] : 0;
-          echo number_format($total_count);
-          ?>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon success">
-          <i class="fa-solid fa-money-bill-wave"></i>
-        </div>
-        <div class="stat-label">Total Amount</div>
-        <div class="stat-value">
-          <?php
-          $amount_result = $conn->query("SELECT SUM(amount) as total FROM consignments");
-          $total_amount = $amount_result ? $amount_result->fetch_assoc()['total'] : 0;
-          echo 'Rs. ' . number_format($total_amount);
-          ?>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon warning">
-          <i class="fa-solid fa-clock"></i>
-        </div>
-        <div class="stat-label">Pending Balance</div>
-        <div class="stat-value">
-          <?php
-          $balance_result = $conn->query("SELECT SUM(balance) as total FROM consignments WHERE balance > 0");
-          $total_balance = $balance_result ? $balance_result->fetch_assoc()['total'] : 0;
-          echo 'Rs. ' . number_format($total_balance);
-          ?>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon info">
-          <i class="fa-solid fa-calendar-day"></i>
-        </div>
-        <div class="stat-label">This Month</div>
-        <div class="stat-value">
-          <?php
-          $month_result = $conn->query("SELECT COUNT(*) as total FROM consignments WHERE MONTH(date) = MONTH(CURRENT_DATE()) AND YEAR(date) = YEAR(CURRENT_DATE())");
-          $month_count = $month_result ? $month_result->fetch_assoc()['total'] : 0;
-          echo number_format($month_count);
-          ?>
-        </div>
-      </div>
-    </div>
 
-    <!-- Quick Actions -->
-    <div class="quick-actions">
-      <a href="add_bilty.php" class="action-card">
-        <div class="action-card-header">
-          <div class="action-card-icon">
-            <i class="fa-solid fa-plus"></i>
-          </div>
-          <div class="action-card-title">Create New Bilty</div>
-          <i class="fa-solid fa-arrow-right" style="color: white; font-size: 1.25rem;"></i>
-        </div>
-        <div class="action-card-body">
-          Quickly add a new bilty record with all shipment details, vehicle information, and payment terms.
-        </div>
-      </a>
-      
-      <a href="view_bilty.php" class="action-card">
-        <div class="action-card-header">
-          <div class="action-card-icon">
-            <i class="fa-solid fa-list"></i>
-          </div>
-          <div class="action-card-title">View All Bilties</div>
-          <i class="fa-solid fa-arrow-right" style="color: white; font-size: 1.25rem;"></i>
-        </div>
-        <div class="action-card-body">
-          Browse, search, and filter through all your bilty records with advanced filtering options.
-        </div>
-      </a>
-      
-      <a href="manage_bills.php" class="action-card">
-        <div class="action-card-header">
-          <div class="action-card-icon">
-            <i class="fa-solid fa-file-invoice-dollar"></i>
-          </div>
-          <div class="action-card-title">Manage Bills</div>
-          <i class="fa-solid fa-arrow-right" style="color: white; font-size: 1.25rem;"></i>
-        </div>
-        <div class="action-card-body">
-          Generate, view, and manage bills for multiple bilties. Track payment status and outstanding amounts.
-        </div>
-      </a>
-      
-      <a href="reports.php" class="action-card">
-        <div class="action-card-header">
-          <div class="action-card-icon">
-            <i class="fa-solid fa-chart-line"></i>
-          </div>
-          <div class="action-card-title">Reports & Analytics</div>
-          <i class="fa-solid fa-arrow-right" style="color: white; font-size: 1.25rem;"></i>
-        </div>
-        <div class="action-card-body">
-          View detailed reports, analytics, and insights about your business performance and trends.
-        </div>
-      </a>
-    </div>
+/*
+ * --------------------------------------------------------------------
+ * DEFAULT CONTROLLER
+ * --------------------------------------------------------------------
+ *
+ * Normally you will set your default controller in the routes.php file.
+ * You can, however, force a custom routing by hard-coding a
+ * specific controller class/function here. For most applications, you
+ * WILL NOT set your routing here, but it's an option for those
+ * special instances where you might want to override the standard
+ * routing in a specific front controller that shares a common CI installation.
+ *
+ * IMPORTANT: If you set the routing here, NO OTHER controller will be
+ * callable. In essence, this preference limits your application to ONE
+ * specific controller. Leave the function name blank if you need
+ * to call functions dynamically via the URI.
+ *
+ * Un-comment the $routing array below to use this feature
+ */
+	// The directory name, relative to the "controllers" directory.  Leave blank
+	// if your controller is not in a sub-directory within the "controllers" one
+	// $routing['directory'] = '';
 
-    <!-- Quick Search Section -->
-    <div class="search-section">
-      <div class="search-header">
-        <div class="search-icon">
-          <i class="fa-solid fa-magnifying-glass"></i>
-        </div>
-        <h2 class="search-title">Quick Bilty Search</h2>
-      </div>
-      
-      <form class="search-form" action="" method="post" autocomplete="off">
-        <div class="search-input-group">
-          <label class="search-label">Bilty Number</label>
-          <input 
-            type="text" 
-            name="bilty_no" 
-            class="search-input" 
-            placeholder="Enter bilty number..." 
-            required 
-            value="<?php echo htmlspecialchars($bilty_no); ?>"
-          />
-        </div>
-        <button type="submit" class="search-btn">
-          <i class="fa-solid fa-search"></i>
-          Search Bilty
-        </button>
-      </form>
-      
-      <?php
-      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if ($bilty_no !== '' && $bilty_row) {
-          echo '<div class="result-section">';
-          echo '<h3 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 1.5rem 0; color: #111827;">Bilty Details</h3>';
-          echo '<div style="overflow-x: auto;">';
-          echo '<table class="result-table">';
-          echo '<thead><tr>
-            <th>Bilty No</th>
-            <th>Date</th>
-            <th>Company</th>
-            <th>Vehicle No</th>
-            <th>Driver</th>
-            <th>Route</th>
-            <th>Amount</th>
-            <th>Advance</th>
-            <th>Balance</th>
-          </tr></thead><tbody>';
-          echo '<tr>
-              <td><strong>'.htmlspecialchars($bilty_row['bilty_no']).'</strong></td>
-              <td>'.htmlspecialchars($bilty_row['date']).'</td>
-              <td>'.htmlspecialchars(getCompanyName($conn, $bilty_row['company_id'])).'</td>
-              <td>'.htmlspecialchars($bilty_row['vehicle_no']).'</td>
-              <td>'.htmlspecialchars($bilty_row['driver_name']).'</td>
-              <td>'.htmlspecialchars($bilty_row['from_city']).' → '.htmlspecialchars($bilty_row['to_city']).'</td>
-              <td><strong>Rs. '.number_format($bilty_row['amount']).'</strong></td>
-              <td>Rs. '.number_format($bilty_row['advance']).'</td>
-              <td>Rs. '.number_format($bilty_row['balance']).'</td>
-          </tr>';
-          echo '</tbody></table>';
-          echo '</div>';
-          
-          echo '<div class="btn-group">';
-          echo '<button type="button" class="btn btn-primary" onclick="printBiltyExternal('.(int)$found_bilty_id.')">
-                  <i class="fa-solid fa-print"></i> Print Bilty
-                </button>';
-          echo '<button type="button" class="btn btn-secondary" onclick="clearSearch()">
-                  <i class="fa-solid fa-times"></i> Clear Search
-                </button>';
-          echo '</div>';
-          echo '</div>';
-        } else {
-          echo '<div class="result-section">';
-          echo '<div class="no-result">';
-          echo '<div class="no-result-icon"><i class="fa-solid fa-search"></i></div>';
-          echo '<h3 style="font-size: 1.25rem; font-weight: 600; margin: 0 0 0.5rem 0;">No bilty found</h3>';
-          echo '<p style="margin: 0 0 1rem 0;">No bilty record found for number <strong>'.htmlspecialchars($bilty_no).'</strong></p>';
-          echo '<button type="button" class="btn btn-secondary" onclick="clearSearch()">
-                  <i class="fa-solid fa-times"></i> Try Another Search
-                </button>';
-          echo '</div>';
-          echo '</div>';
-        }
-      }
-      ?>
-    </div>
+	// The controller class file name.  Example:  mycontroller
+	// $routing['controller'] = '';
 
-  </main>
+	// The controller function you wish to be called.
+	// $routing['function']	= '';
 
-  <footer style="background: white; border-top: 1px solid #e5e7eb; margin-top: 4rem; padding: 2rem 1rem;">
-    <div style="max-width: 1400px; margin: 0 auto; text-align: center; color: #6b7280; font-size: 0.875rem;">
-      <div style="display: inline-flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: center;">
-        <span style="display: flex; align-items: center; gap: 0.5rem;">
-          <i class="fa-solid fa-code" style="color: var(--main-color);"></i>
-          <span>Developed by <strong>Ali Abbas</strong></span>
-        </span>
-        <span style="color: #d1d5db;">|</span>
-        <a href="tel:+923483469617" style="display: flex; align-items: center; gap: 0.5rem; color: var(--main-color); text-decoration: none; font-weight: 500;">
-          <i class="fa-solid fa-phone"></i>
-          <span>+92 348 3469617</span>
-        </a>
-      </div>
-    </div>
-  </footer>
-</body>
-</html>
+
+/*
+ * -------------------------------------------------------------------
+ *  CUSTOM CONFIG VALUES
+ * -------------------------------------------------------------------
+ *
+ * The $assign_to_config array below will be passed dynamically to the
+ * config class when initialized. This allows you to set custom config
+ * items or override any default config values found in the config.php file.
+ * This can be handy as it permits you to share one application between
+ * multiple front controller files, with each file containing different
+ * config values.
+ *
+ * Un-comment the $assign_to_config array below to use this feature
+ */
+	// $assign_to_config['name_of_config_item'] = 'value of config item';
+
+
+
+// --------------------------------------------------------------------
+// END OF USER CONFIGURABLE SETTINGS.  DO NOT EDIT BELOW THIS LINE
+// --------------------------------------------------------------------
+
+/*
+ * ---------------------------------------------------------------
+ *  Resolve the system path for increased reliability
+ * ---------------------------------------------------------------
+ */
+
+	// Set the current directory correctly for CLI requests
+	if (defined('STDIN'))
+	{
+		chdir(dirname(__FILE__));
+	}
+
+	if (($_temp = realpath($system_path)) !== FALSE)
+	{
+		$system_path = $_temp.DIRECTORY_SEPARATOR;
+	}
+	else
+	{
+		// Ensure there's a trailing slash
+		$system_path = strtr(
+			rtrim($system_path, '/\\'),
+			'/\\',
+			DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR
+		).DIRECTORY_SEPARATOR;
+	}
+
+	// Is the system path correct?
+	if ( ! is_dir($system_path))
+	{
+		header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
+		echo 'Your system folder path does not appear to be set correctly. Please open the following file and correct this: '.pathinfo(__FILE__, PATHINFO_BASENAME);
+		exit(3); // EXIT_CONFIG
+	}
+
+/*
+ * -------------------------------------------------------------------
+ *  Now that we know the path, set the main path constants
+ * -------------------------------------------------------------------
+ */
+	// The name of THIS file
+	define('SELF', pathinfo(__FILE__, PATHINFO_BASENAME));
+
+	// Path to the system directory
+	define('BASEPATH', $system_path);
+
+	// Path to the front controller (this file) directory
+	define('FCPATH', dirname(__FILE__).DIRECTORY_SEPARATOR);
+
+	// Name of the "system" directory
+	define('SYSDIR', basename(BASEPATH));
+
+	// The path to the "application" directory
+	if (is_dir($application_folder))
+	{
+		if (($_temp = realpath($application_folder)) !== FALSE)
+		{
+			$application_folder = $_temp;
+		}
+		else
+		{
+			$application_folder = strtr(
+				rtrim($application_folder, '/\\'),
+				'/\\',
+				DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR
+			);
+		}
+	}
+	elseif (is_dir(BASEPATH.$application_folder.DIRECTORY_SEPARATOR))
+	{
+		$application_folder = BASEPATH.strtr(
+			trim($application_folder, '/\\'),
+			'/\\',
+			DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR
+		);
+	}
+	else
+	{
+		header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
+		echo 'Your application folder path does not appear to be set correctly. Please open the following file and correct this: '.SELF;
+		exit(3); // EXIT_CONFIG
+	}
+
+	define('APPPATH', $application_folder.DIRECTORY_SEPARATOR);
+
+	// The path to the "views" directory
+	if ( ! isset($view_folder[0]) && is_dir(APPPATH.'views'.DIRECTORY_SEPARATOR))
+	{
+		$view_folder = APPPATH.'views';
+	}
+	elseif (is_dir($view_folder))
+	{
+		if (($_temp = realpath($view_folder)) !== FALSE)
+		{
+			$view_folder = $_temp;
+		}
+		else
+		{
+			$view_folder = strtr(
+				rtrim($view_folder, '/\\'),
+				'/\\',
+				DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR
+			);
+		}
+	}
+	elseif (is_dir(APPPATH.$view_folder.DIRECTORY_SEPARATOR))
+	{
+		$view_folder = APPPATH.strtr(
+			trim($view_folder, '/\\'),
+			'/\\',
+			DIRECTORY_SEPARATOR.DIRECTORY_SEPARATOR
+		);
+	}
+	else
+	{
+		header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
+		echo 'Your view folder path does not appear to be set correctly. Please open the following file and correct this: '.SELF;
+		exit(3); // EXIT_CONFIG
+	}
+
+	define('VIEWPATH', $view_folder.DIRECTORY_SEPARATOR);
+
+/*
+ * --------------------------------------------------------------------
+ * LOAD THE BOOTSTRAP FILE
+ * --------------------------------------------------------------------
+ *
+ * And away we go...
+ */
+require_once BASEPATH.'core/CodeIgniter.php';
